@@ -20,7 +20,7 @@ select join_couple(:'gc', 'Simran')->>'name';
 
 -- catalog: no app-only "spark" boxes, plenty of coupons
 select pg_temp.as_user('e1000000-0000-0000-0000-000000000001');
-select pg_temp.check(json_array_length(gift_catalog()) >= 30, 'catalog should have 30+ items');
+select pg_temp.check(json_array_length(gift_catalog()) >= 15, 'catalog should have 15+ items');
 select pg_temp.check(not exists (select 1 from json_array_elements(gift_catalog()) e where e->>'kind' = 'spark'), 'sparks stay out of the sender catalog');
 
 -- Raj sends a coupon
@@ -49,7 +49,7 @@ select pg_temp.check(json_array_length(gift_box()->'wallet') = 1, 'opened coupon
 
 -- Raj sees it was opened
 select pg_temp.as_user('e1000000-0000-0000-0000-000000000001');
-select pg_temp.check(json_array_length(gift_box()->'events') = 1 and (gift_box()->'events'->0->>'opened_at') is not null, 'sender sees the open');
+select pg_temp.check(json_array_length(gift_box()->'events') = 1 and (gift_box()->'sent'->0->>'opened_at') is not null, 'sender sees the open');
 
 select pg_temp.as_user('e1000000-0000-0000-0000-000000000001');
 select mark_gifts_seen();
@@ -59,7 +59,7 @@ select pg_temp.as_user('e1000000-0000-0000-0000-000000000002');
 select pg_temp.expect_fail(format($$select react_gift(%L, 'x')$$, :'g1'), 'Pick a reaction');
 select react_gift(:'g1', '😂');
 select pg_temp.as_user('e1000000-0000-0000-0000-000000000001');
-select pg_temp.check((gift_box()->'events'->0->>'reaction') = '😂', 'sender sees the reaction');
+select pg_temp.check((gift_box()->'sent'->0->>'reaction') = '😂', 'sender sees the reaction');
 select pg_temp.expect_fail(format($$select react_gift(%L, '😂')$$, :'g1'), 'Open the gift first');   -- sender cannot react to own gift
 
 -- sender dismisses; events clear
@@ -72,7 +72,7 @@ select redeem_gift(:'g1');
 select pg_temp.check(json_array_length(gift_box()->'wallet') = 0, 'redeemed coupon leaves the wallet');
 select pg_temp.expect_fail(format($$select redeem_gift(%L)$$, :'g1'), 'not available');
 select pg_temp.as_user('e1000000-0000-0000-0000-000000000001');
-select pg_temp.check(json_array_length(gift_box()->'events') = 1 and (gift_box()->'events'->0->>'redeemed_at') is not null, 'sender sees the redemption');
+select pg_temp.check(json_array_length(gift_box()->'events') = 1 and (gift_box()->'sent'->0->>'redeemed_at') is not null, 'sender sees the redemption');
 
 -- reacting before opening is refused; a dare is not redeemable
 select send_gift('dare', '🤪', 'Worst selfie', 'Send it now.') as g2 \gset

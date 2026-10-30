@@ -59,3 +59,12 @@
 .gift-sentbtn{position:relative;overflow:visible}
 .gift-badge{position:absolute;top:-9px;right:-4px;min-width:26px;height:26px;padding:0 7px;border-radius:99px;background:#F0386B;color:#fff;font-size:14px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 .gift-fresh{background:#FFF1F5;border-radius:var(--r-md);padding-left:8px;padding-right:8px}
+
+/* Plans, dare proof and review */
+.gift-proof{width:100%;max-height:46vh;object-fit:contain;border-radius:var(--r-md);background:#000}
+.gift-redo{margin:0;padding:8px 12px;border-radius:var(--r-md);background:#FFF7E0;border:1px solid #F59E0B;font-size:14px}
+.gift-when{font-weight:700;font-size:18px;margin:0}
+.gift-sent{display:flex;flex-direction:column;gap:10px;padding:2px 0}
+.gift-sent + .gift-sent{border-top:1px solid var(--line)}
+.gift-sent.gift-fresh{padding:10px 8px;margin:4px 0}
+.gift-sent .gw-row{border-top:0;padding:4px 0}
