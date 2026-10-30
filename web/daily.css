@@ -68,3 +68,8 @@
 .gift-sent + .gift-sent{border-top:1px solid var(--line)}
 .gift-sent.gift-fresh{padding:10px 8px;margin:4px 0}
 .gift-sent .gw-row{border-top:0;padding:4px 0}
+
+/* Videos in memories */
+.pick-thumb video{width:100%;height:100%;object-fit:cover;border-radius:12px}
+.pick-vid{position:absolute;inset:0;display:grid;place-items:center;font-size:28px;background:#FFE3EC;border-radius:12px}
+.car-vid{object-fit:contain;background:#000}

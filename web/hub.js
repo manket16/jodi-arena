@@ -38,6 +38,17 @@ export async function uploadPhoto(coupleId, file) {
   if (error) throw error;
   return path;
 }
+export const isVid = (p) => /\.(mp4|mov|webm)$/i.test(p || '');
+export const coverOf = (m) => (m.photos || []).find((p) => !isVid(p));
+export async function uploadMedia(coupleId, file) {
+  if (!(file.type || '').startsWith('video/')) return uploadPhoto(coupleId, file);
+  if (file.size > 40 * 1024 * 1024) throw new Error('That video is too big. Keep it to about 20 seconds.');
+  const ext = file.type.includes('quicktime') ? 'mov' : file.type.includes('webm') ? 'webm' : 'mp4';
+  const path = `${coupleId}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await sb.storage.from(BUCKET).upload(path, file, { contentType: file.type });
+  if (error) throw error;
+  return path;
+}
 export async function fetchPhoto(path) {
   const { data, error } = await sb.storage.from(BUCKET).download(path);
   if (error) throw error;
@@ -151,7 +162,7 @@ export function MemoriesScreen({ home, back, initialTab }) {
     try {
       const l = await rpc('list_memories');
       setList(l);
-      const firsts = l.map((m) => m.photos[0]).filter(Boolean);
+      const firsts = l.map((m) => coverOf(m)).filter(Boolean);
       if (firsts.length) { const m = await signed(firsts); setUrls((u) => ({ ...u, ...m })); }
     } catch (e) { fail(e); setList([]); }
   };
@@ -166,9 +177,10 @@ export function MemoriesScreen({ home, back, initialTab }) {
 
   const Card = ({ m }) => html`
     <button class="mem-card" onClick=${() => setView(m.id)}>
-      <div class="mem-img" style=${urls[m.photos[0]] ? `background-image:url("${urls[m.photos[0]]}")` : ''}>
+      <div class="mem-img" style=${coverOf(m) && urls[coverOf(m)] ? `background-image:url("${urls[coverOf(m)]}")` : ''}>
         ${m.photos.length === 0 && html`<span class="mem-none">📝</span>`}
-        ${m.photos.length > 1 && html`<span class="mem-count">🖼 ${m.photos.length}</span>`}
+        ${m.photos.length > 0 && !coverOf(m) && html`<span class="mem-none">🎬</span>`}
+        ${m.photos.length > 1 && html`<span class="mem-count">${m.photos.some(isVid) ? '🎬' : '🖼'} ${m.photos.length}</span>`}
         ${m.fav && html`<span class="mem-fav">★</span>`}
       </div>
       <b>${m.title}</b>
@@ -193,9 +205,9 @@ export function MemoriesScreen({ home, back, initialTab }) {
     for (const m of all) { const k = (by === 'album' ? m.album : m.place) || (by === 'album' ? 'Unsorted' : 'No place'); if (!map.has(k)) map.set(k, []); map.get(k).push(m); }
     const arr = [...map.entries()];
     if (!arr.length) return html`<p class="muted center">Nothing here yet. Add a memory with ${by === 'album' ? 'an album' : 'a place'} name.</p>`;
-    return html`<div class="mem-grid">${arr.map(([k, ms]) => { const cover = ms.find((m) => m.photos[0]); return html`
+    return html`<div class="mem-grid">${arr.map(([k, ms]) => { const cover = ms.find((m) => coverOf(m)); return html`
       <button class="mem-card" onClick=${() => { setGroup({ by, key: k }); setTab('timeline'); }}>
-        <div class="mem-img" style=${cover && urls[cover.photos[0]] ? `background-image:url("${urls[cover.photos[0]]}")` : ''}>${!cover && html`<span class="mem-none">${by === 'album' ? '📁' : '📍'}</span>`}</div>
+        <div class="mem-img" style=${cover && urls[coverOf(cover)] ? `background-image:url("${urls[coverOf(cover)]}")` : ''}>${!cover && html`<span class="mem-none">${by === 'album' ? '📁' : '📍'}</span>`}</div>
         <b>${by === 'album' ? '' : '📍 '}${k}</b><span class="small muted">${ms.length} ${ms.length === 1 ? 'memory' : 'memories'}</span>
       </button>`; })}</div>`;
   };
@@ -251,7 +263,7 @@ function AddMemory({ home, albums, edit, urls, onClose, onSaved }) {
   useEffect(() => () => previews.current.forEach((u) => URL.revokeObjectURL(u)), []);
 
   const addFiles = (e) => {
-    const picked = [...e.target.files].filter((f) => f.type.startsWith('image/'));
+    const picked = [...e.target.files].filter((f) => f.type.startsWith('image/') || f.type.startsWith('video/'));
     setFiles((cur) => [...cur, ...picked].slice(0, 6 - kept.length));
     e.target.value = '';
   };
@@ -260,8 +272,8 @@ function AddMemory({ home, albums, edit, urls, onClose, onSaved }) {
     const paths = [];
     try {
       for (let i = 0; i < files.length; i++) {
-        setProg(`Uploading photo ${i + 1} of ${files.length}…`);
-        paths.push(await uploadPhoto(home.couple.id, files[i]));
+        setProg(`Uploading ${i + 1} of ${files.length}…`);
+        paths.push(await uploadMedia(home.couple.id, files[i]));
       }
       setProg('Saving…');
       if (edit) {
@@ -281,9 +293,9 @@ function AddMemory({ home, albums, edit, urls, onClose, onSaved }) {
     <${Sheet} title=${edit ? 'Edit memory' : 'Add a memory'} onClose=${busy ? () => {} : onClose}>
       <form class="stack" onSubmit=${save}>
         <div class="pick-row">
-          ${kept.map((p) => html`<div class="pick-thumb" style=${urls && urls[p] ? `background-image:url("${urls[p]}")` : ''}><button type="button" aria-label="Remove photo" onClick=${() => setKept(kept.filter((x) => x !== p))}>✕</button></div>`)}
-          ${files.map((f, i) => html`<div class="pick-thumb" style=${`background-image:url("${prev(f)}")`}><button type="button" aria-label="Remove photo" onClick=${() => setFiles(files.filter((_, j) => j !== i))}>✕</button></div>`)}
-          ${kept.length + files.length < 6 && html`<label class="pick-add">＋<span class="small">Photos</span><input type="file" accept="image/*" multiple hidden onChange=${addFiles} /></label>`}
+          ${kept.map((p) => html`<div class="pick-thumb" style=${urls && urls[p] && !isVid(p) ? `background-image:url("${urls[p]}")` : ''}>${isVid(p) && html`<span class="pick-vid">🎬</span>`}<button type="button" aria-label="Remove photo" onClick=${() => setKept(kept.filter((x) => x !== p))}>✕</button></div>`)}
+          ${files.map((f, i) => html`<div class="pick-thumb" style=${f.type.startsWith('video/') ? '' : `background-image:url("${prev(f)}")`}>${f.type.startsWith('video/') && html`<video src=${prev(f)} muted playsinline preload="metadata"></video>`}<button type="button" aria-label="Remove photo" onClick=${() => setFiles(files.filter((_, j) => j !== i))}>✕</button></div>`)}
+          ${kept.length + files.length < 6 && html`<label class="pick-add">＋<span class="small">Photos & videos</span><input type="file" accept="image/*,video/*" multiple hidden onChange=${addFiles} /></label>`}
         </div>
         <label class="field"><span>What was it?</span><input class="input" required maxlength="80" placeholder="Barbeque Nation date" value=${title} onInput=${(e) => setTitle(e.target.value)} /></label>
         <div class="two">
@@ -318,7 +330,9 @@ function MemoryView({ m, home, albums, onClose, onChanged }) {
   };
   return html`
     <${Sheet} title=${m.title} onClose=${onClose}>
-      ${m.photos.length > 0 && html`<div class="carousel">${m.photos.map((p) => html`<div class="car-img" style=${urls[p] ? `background-image:url("${urls[p]}")` : ''}></div>`)}</div>`}
+      ${m.photos.length > 0 && html`<div class="carousel">${m.photos.map((p) => isVid(p)
+        ? html`<video class="car-img car-vid" src=${urls[p] || ''} controls playsinline preload="metadata"></video>`
+        : html`<div class="car-img" style=${urls[p] ? `background-image:url("${urls[p]}")` : ''}></div>`)}</div>`}
       <div class="stack">
         <p class="small muted">📅 ${fmtDate(m.happened_on)}${m.place ? ` · 📍 ${m.place}` : ''}${m.album ? ` · 📁 ${m.album}` : ''}</p>
         ${m.caption && html`<p>${m.caption}</p>`}
