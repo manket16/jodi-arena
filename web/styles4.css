@@ -1,0 +1,54 @@
+/* locked tiles (guest mode) */
+.game-tile.locked { filter: grayscale(.85); opacity: .7; }
+.game-tile .lock { position: absolute; top: 12px; right: 12px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.guest-bar { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; border: 2px dashed var(--marigold); background: #FFF6DB; border-radius: var(--r-lg); padding: 12px 14px; }
+.guest-bar .grow { flex: 1; min-width: 0; }
+
+/* Future Us */
+.dream-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dream { border: 2px solid var(--line); background: var(--card); border-radius: var(--r-lg); padding: 14px 10px; min-height: 120px;
+  display: grid; justify-items: center; align-content: center; gap: 6px; font-weight: 700; font-size: 15px; line-height: 1.2;
+  box-shadow: 0 4px 0 var(--line); transition: transform .1s ease; }
+.dream .d-emo { font-size: 40px; line-height: 1; }
+.dream:active { transform: translateY(3px); }
+.dream.on { border-color: var(--g); background: var(--g-soft); animation: pop .25s ease-out; }
+.postcard { border-radius: var(--r-lg); padding: 20px 16px; text-align: center; color: #fff;
+  background: linear-gradient(170deg, #0E8F6E 0%, #34C3A0 60%, #FFD36E 100%); box-shadow: var(--shadow); }
+.postcard .pc-top { font-family: var(--display); font-weight: 700; opacity: .95; }
+.postcard .pc-pct { font-family: var(--display); font-weight: 800; font-size: 84px; line-height: 1; margin-top: 6px; }
+.postcard .pc-sub { font-family: var(--display); font-weight: 700; font-size: 18px; }
+.postcard .pc-scene { margin-top: 14px; background: rgba(255,255,255,.25); border-radius: var(--r-md); padding: 12px; font-size: 38px; letter-spacing: 6px; min-height: 64px; }
+
+/* Filmy Emoji */
+.clue { border: 2px solid var(--line); border-radius: var(--r-md); padding: 8px 12px; display: grid; gap: 2px; }
+.clue.on { border-color: var(--g); background: var(--g-soft); }
+.clue-in { border: 0; background: transparent; font-size: 28px; min-height: 40px; outline: none; width: 100%; }
+.palette { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; background: #FBF3EF; border-radius: var(--r-md); padding: 8px; }
+.palette button { border: 0; background: var(--card); border-radius: 10px; font-size: 22px; aspect-ratio: 1; padding: 0; }
+.palette button:active { transform: scale(.9); }
+.palette .del { background: var(--ink); color: #fff; font-size: 18px; }
+.emoji-big { font-size: 52px; text-align: center; padding: 16px 6px; background: var(--g-soft); border-radius: var(--r-lg); letter-spacing: 4px; word-break: break-word; }
+
+/* admin */
+.admin h1 { font-size: 28px; }
+.a-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.a-stat { background: var(--card); border-radius: var(--r-lg); padding: 14px; box-shadow: var(--shadow); display: grid; }
+.a-stat b { font-family: var(--display); font-size: 36px; line-height: 1.1; color: var(--rani); }
+.a-stat span { font-weight: 700; }
+.a-stat em { font-style: normal; font-size: 12.5px; color: var(--muted); }
+.bars { display: flex; align-items: flex-end; gap: 4px; height: 140px; }
+.bar-col { flex: 1; display: grid; grid-template-rows: 1fr auto auto; height: 100%; text-align: center; font-size: 11px; }
+.bar-col i { align-self: end; background: var(--rani); border-radius: 6px 6px 0 0; min-height: 3px; }
+.bar-col em { font-style: normal; color: var(--muted); }
+.hbar { display: grid; grid-template-columns: 9.5em 1fr 2.5em; align-items: center; gap: 8px; font-size: 14px; }
+.hbar div { background: #F4E6E2; border-radius: 999px; height: 12px; overflow: hidden; }
+.hbar i { display: block; height: 100%; background: var(--marigold); border-radius: 999px; }
+.hbar b { text-align: right; }
+.a-list > * + * { border-top: 1px solid var(--line); }
+.a-row { padding: 10px 0; display: grid; gap: 3px; }
+
+/* levels */
+.level-card { background: var(--card); border-radius: var(--r-lg); padding: 14px; box-shadow: var(--shadow); display: grid; gap: 8px; }
+.lv-chip { font-family: var(--display); font-weight: 800; color: var(--rani); }
+.lv-bar { height: 10px; background: #F4E6E2; border-radius: 999px; overflow: hidden; }
+.lv-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--marigold), var(--rani)); border-radius: 999px; }

@@ -1,0 +1,28 @@
+/* season banner */
+.season { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; border: 0; border-radius: var(--r-lg); padding: 12px 14px;
+  background: color-mix(in srgb, var(--s) 14%, white); border: 2px solid color-mix(in srgb, var(--s) 35%, white); }
+.season .s-emo { font-size: 30px; animation: bob 2.6s ease-in-out infinite; }
+.season .grow { flex: 1; min-width: 0; display: grid; }
+.season b { font-family: var(--display); font-size: 18px; color: color-mix(in srgb, var(--s) 70%, var(--ink)); }
+.season .s-days { display: grid; justify-items: center; background: var(--s); color: #fff; border-radius: var(--r-md); padding: 4px 10px; line-height: 1.1; }
+.season .s-days b { color: #fff; font-size: 20px; }
+.season .s-days span { font-size: 11px; }
+
+/* daily challenge card */
+.daily { border-radius: var(--r-lg); padding: 16px; background: var(--card); box-shadow: var(--shadow);
+  border: 3px solid var(--g); position: relative; overflow: hidden; }
+.daily::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 70px; background: var(--g-soft); z-index: 0; }
+.daily > * { position: relative; z-index: 1; }
+.daily .d-label { font-family: var(--display); font-weight: 800; font-size: 14px; color: var(--g); }
+.daily .flame { font-family: var(--display); font-weight: 800; background: #FFF0C2; border-radius: 999px; padding: 2px 10px; }
+.daily .blob { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; font-size: 30px; background: var(--card); box-shadow: 0 3px 0 color-mix(in srgb, var(--g) 30%, transparent); flex: none; transform: rotate(-6deg); }
+.daily .grow { flex: 1; min-width: 0; }
+.daily.done { border-style: dashed; }
+
+.streak-big { display: flex; align-items: center; gap: 14px; justify-content: center; background: #FFF0C2; border-radius: var(--r-lg); padding: 14px; }
+.streak-big .fire { font-size: 44px; animation: bob 1.6s ease-in-out infinite; }
+.streak-big b { display: block; font-family: var(--display); font-size: 26px; line-height: 1.1; }
+
+.shop button { position: relative; }
+.shop button.limited { border-color: var(--marigold); background: #FFF6DB; }
+.shop .lim { position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--marigold); color: var(--ink); font-size: 10px; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }

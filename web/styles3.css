@@ -1,0 +1,20 @@
+.nav div { grid-template-columns: repeat(4, 1fr); }
+
+/* Know Your Jodi */
+.kyj-who { background: var(--g-soft); color: var(--g); font-size: 16px; }
+.kyj-who.guess { background: var(--g); color: #fff; }
+
+/* Jodi Report */
+.report {
+  border-radius: var(--r-lg); padding: 22px 18px; color: #fff; text-align: center; position: relative; overflow: hidden;
+  background: linear-gradient(160deg, #F0386B 0%, #FF7A59 55%, #FFB627 100%); box-shadow: var(--shadow);
+}
+.report::after { content: "💞"; position: absolute; right: -10px; top: -20px; font-size: 120px; opacity: .15; transform: rotate(14deg); }
+.report .r-names { font-family: var(--display); font-weight: 800; font-size: 24px; }
+.report .r-big { font-family: var(--display); font-weight: 800; font-size: 96px; line-height: 1; margin-top: 10px; animation: pop .4s ease-out; }
+.report .r-label { font-family: var(--display); font-weight: 700; font-size: 20px; }
+.report .r-label span { font-family: var(--body); font-weight: 500; font-size: 13px; opacity: .85; }
+.report .r-tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+.report .r-tiles div { background: rgba(255,255,255,.22); border-radius: var(--r-md); padding: 10px 6px; }
+.report .r-tiles b { display: block; font-family: var(--display); font-size: 22px; line-height: 1.1; }
+.report .r-tiles span { font-size: 12.5px; opacity: .92; }

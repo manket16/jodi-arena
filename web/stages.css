@@ -1,0 +1,17 @@
+/* relationship stages */
+.stage-card{display:flex;flex-direction:column;gap:10px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;background:linear-gradient(150deg,#FFF1F5,#FDF2F8);border:2px solid #F9A8D4;border-radius:20px;padding:14px;box-shadow:var(--shadow)}
+.stage-top{display:flex;align-items:center;gap:12px}
+.stage-top .grow{display:flex;flex-direction:column;min-width:0}
+.stage-emo{font-size:38px}
+.stage-name{font-family:var(--display);font-size:30px;line-height:1;color:#BE185D}
+.stage-pts{display:flex;flex-direction:column;align-items:center}
+.stage-pts b{font-family:var(--display);font-size:26px}
+.ladder{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.rung{text-align:center;font-size:12px;padding:6px 0;border-radius:10px;background:#F3F4F6;color:var(--muted)}
+.rung.done{background:#FBCFE8;color:#9D174D}
+.rung.now{background:#BE185D;color:#fff;transform:scale(1.08);box-shadow:0 3px 8px rgba(190,24,93,.35)}
+.stage-bar{height:10px;background:#F3E8EE;border-radius:99px;overflow:hidden}
+.stage-bar i{display:block;height:100%;background:linear-gradient(90deg,#FB7185,#BE185D);border-radius:99px}
+.stage-chip{background:rgba(255,255,255,.22);border-radius:99px;padding:3px 12px;font-weight:700}
+.stage-wrap{max-width:560px;margin:0 auto;padding:16px 16px 0}.stage-wrap+.screen{padding-top:12px}
+.stage-wrap.last{padding-bottom:120px}
