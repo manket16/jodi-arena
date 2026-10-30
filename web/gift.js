@@ -332,20 +332,40 @@ export function GiftBox({ home, solo, onInvite }) {
     setSentNew(box.events.map((e) => e.id));
     if (box.events.length) { try { await rpc('mark_gifts_seen'); } catch (_) { /* ignore */ } load(); }
   };
+  const sentList = box.sent || [];
+  const reviews = sentList.filter((g) => g.kind === 'dare' && g.status === 'proof_sent');
+  const unseen = (box.events || []).map((e) => e.id);
+  const planNews = sentList.filter((g) => g.kind === 'plan' && g.plan_reply && unseen.includes(g.id));
   const challenges = box.challenges || [];
   const plans = box.plans || [];
 
   return html`
     <section class="gift-wrap" aria-label="Surprise box">
-      ${waiting > 0 ? html`
+      ${reviews.length > 0 && html`
+        <button class="gift-card hot" onClick=${openSent}>
+          <span class="gift-big shake">📸</span>
+          <span class="grow"><b>${reviews.length === 1 ? `${partner} completed ${reviews[0].title}` : `${partner} completed ${reviews.length} challenges`}</b><br/><span class="small">Tap to see the proof and approve.</span></span>
+        </button>`}
+
+      ${planNews.length > 0 && html`
+        <button class="gift-card hot" onClick=${openSent}>
+          <span class="gift-big shake">${planNews[0].plan_reply === 'in' ? '🙌' : '🕐'}</span>
+          <span class="grow"><b>${planNews.length === 1 ? (planNews[0].plan_reply === 'in' ? `${partner} is in for ${planNews[0].title}` : `${partner} suggested another time for ${planNews[0].title}`) : `${partner} replied to ${planNews.length} plans`}</b><br/><span class="small">Tap to see.</span></span>
+        </button>`}
+
+      ${waiting > 0 && html`
         <button class="gift-card hot" disabled=${busy} onClick=${openNext}>
           <span class="gift-big shake">🎁</span>
           <span class="grow"><b>${partner} left you ${waiting === 1 ? 'a surprise' : `${waiting} surprises`}</b><br/><span class="small">Tap to open. No peeking.</span></span>
-        </button>` : box.free_available ? html`
+        </button>`}
+
+      ${waiting === 0 && box.free_available && html`
         <button class="gift-card free" disabled=${busy} onClick=${openFree}>
           <span class="gift-big shake">✨</span>
           <span class="grow"><b>A free surprise is waiting</b><br/><span class="small">From Jodi Arena, once a day. Tap to open.</span></span>
-        </button>` : html`
+        </button>`}
+
+      ${waiting === 0 && !box.free_available && reviews.length === 0 && planNews.length === 0 && html`
         <div class="gift-card idle">
           <span class="gift-big">🎁</span>
           <span class="grow"><b>Nothing waiting right now</b><br/><span class="small muted">${canSend ? `Why not send ${partner} one?` : 'Invite your partner to send and receive surprises.'}</span></span>
