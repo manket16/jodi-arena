@@ -182,7 +182,7 @@ function SendSheet({ partner, onClose, onSent }) {
     setBusy(true);
     const plan_at = isPlan && when ? new Date(when).toISOString() : null;
     try {
-      await rpc('send_gift', writing
+      await rpc('send_gift2', writing
         ? { p_kind: tab, p_emoji: emoji, p_title: title, p_body: body, p_make_real: null, p_plan_at: plan_at }
         : { p_kind: tab, p_emoji: chosen.emoji, p_title: chosen.title, p_body: chosen.body, p_make_real: chosen.make_real, p_plan_at: plan_at });
       buzz(); onSent();

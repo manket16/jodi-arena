@@ -24,9 +24,9 @@ select pg_temp.check(exists (select 1 from json_array_elements(gift_catalog()) e
 select pg_temp.check(not exists (select 1 from json_array_elements(gift_catalog()) e where e->>'kind' in ('coupon','spark')), 'no coupons in the sender catalog');
 
 -- plans need a future time
-select pg_temp.expect_fail($$select send_gift('plan', '🕯️', 'Candlelight dinner', 'dinner', 'date')$$, 'future');
-select pg_temp.expect_fail($$select send_gift('plan', '🕯️', 'Candlelight dinner', 'dinner', 'date', now() - interval '1 hour')$$, 'future');
-select send_gift('plan', '🕯️', 'Candlelight dinner', 'A proper dinner date.', 'date', now() + interval '3 days') as p1 \gset
+select pg_temp.expect_fail($$select send_gift2('plan', '🕯️', 'Candlelight dinner', 'dinner', 'date')$$, 'future');
+select pg_temp.expect_fail($$select send_gift2('plan', '🕯️', 'Candlelight dinner', 'dinner', 'date', now() - interval '1 hour')$$, 'future');
+select send_gift2('plan', '🕯️', 'Candlelight dinner', 'A proper dinner date.', 'date', now() + interval '3 days') as p1 \gset
 
 -- Simran opens the plan, sees it pending, accepts
 select pg_temp.as_user('f1000000-0000-0000-0000-000000000002');
@@ -41,7 +41,7 @@ select mark_gifts_seen();
 select pg_temp.check((gift_box()->>'badge')::int = 0, 'badge clears');
 
 -- a dare with proof
-select send_gift('dare', '🤪', 'Worst selfie', 'Send your worst selfie now.') as d1 \gset
+select send_gift2('dare', '🤪', 'Worst selfie', 'Send your worst selfie now.') as d1 \gset
 select pg_temp.as_user('f1000000-0000-0000-0000-000000000002');
 select pg_temp.expect_fail(format($$select submit_proof(%L, %L, 'image')$$, :'d1', :'cid' || '/a.jpg'), 'not open');   -- not opened yet
 select open_gift(:'d1')->>'kind';

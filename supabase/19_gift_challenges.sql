@@ -51,9 +51,8 @@ language sql stable security definer set search_path = public as $$
   from public.gift_catalog where kind not in ('spark', 'coupon')
 $$;
 
--- ---- send: plans carry a proposed date and time ----
-drop function public.send_gift(text, text, text, text, text);
-create or replace function public.send_gift(p_kind text, p_emoji text, p_title text, p_body text, p_make_real text default null, p_plan_at timestamptz default null)
+-- ---- send: plans carry a proposed date and time (send_gift2; the original send_gift stays for older app versions) ----
+create or replace function public.send_gift2(p_kind text, p_emoji text, p_title text, p_body text, p_make_real text default null, p_plan_at timestamptz default null)
 returns uuid language plpgsql security definer set search_path = public as $$
 declare c uuid := public.my_couple(); partner uuid := public._partner(); gid uuid;
 begin
@@ -205,9 +204,9 @@ begin
        order by points desc, cp.name limit 50) r), '[]'::json));
 end $$;
 
-revoke execute on function public.send_gift(text, text, text, text, text, timestamptz), public.submit_proof(uuid, text, text, text),
+revoke execute on function public.send_gift2(text, text, text, text, text, timestamptz), public.submit_proof(uuid, text, text, text),
   public.approve_dare(uuid), public.redo_dare(uuid, text), public.reply_plan(uuid, text, text), public.gift_box(), public.gift_catalog(),
   public._gift_json(public.gifts), public.mark_gifts_seen(), public.sync_board() from public, anon;
-grant execute on function public.send_gift(text, text, text, text, text, timestamptz), public.submit_proof(uuid, text, text, text),
+grant execute on function public.send_gift2(text, text, text, text, text, timestamptz), public.submit_proof(uuid, text, text, text),
   public.approve_dare(uuid), public.redo_dare(uuid, text), public.reply_plan(uuid, text, text), public.gift_box(), public.gift_catalog(),
   public.mark_gifts_seen(), public.sync_board() to authenticated;
