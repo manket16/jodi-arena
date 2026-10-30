@@ -10,7 +10,7 @@ const MAKE_REAL = {
 };
 const KIND = { coupon: '🎟️ Coupon', dare: '🎯 Dare', song: '🎵 Song for you', note: '💌 Note', spark: '✨ Little spark', plan: '📅 Plan' };
 const REACTIONS = ['😂', '😍', '🥹', '😈', '🔥', '❤️'];
-const TABS = [['plan', 'Plans'], ['dare', 'Dares'], ['song', 'Songs'], ['note', 'Note']];
+const TABS = [['plan', 'Plans'], ['dare', 'Dares']];
 const EMOJI = ['🎁', '💌', '🍗', '😘', '🔥', '🥰'];
 const DARE_POINTS = 50;
 const PROOF_BUCKET = 'proofs';
