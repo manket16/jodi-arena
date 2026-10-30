@@ -15,6 +15,11 @@ export const JHOOTH = [
   'What did I tell my friends about our first date?', 'What lie did I tell to get out of a plan?', 'What is the first thing I notice about people?',
   'Which app do I open first in the morning?', 'What is my biggest fear about us?', 'What did I want to become as a kid?',
   'What scares me in the dark?', 'What is something I still have from my childhood?', 'Which song do I sing in the shower?',
+  'What is the last lie I told you that you never caught?', 'What do I secretly do when I am home alone?', 'Which of your relatives do I find the funniest?',
+  'What was my most awkward moment this year?', 'What did I text my friend about you last week?', 'Which of my photos do I secretly love the most?',
+  'What is the one thing I would never share with you?', 'What was I doing when you last called and I did not pick up?', 'Which gift of yours did I secretly not like?',
+  'What was the last thing I pretended to know?', 'What do I stare at on my phone before sleeping?', 'Who do I text the most after you?',
+  'What is something I did as a kid that I am still ashamed of?', 'What is my most unused app?', 'What is the first thing I do after we fight?',
 ];
 
 export const DRAW = [
@@ -25,6 +30,9 @@ export const DRAW = [
   'Rainy day pakode', 'Uncle at a wedding dancing', 'You on a diet', 'Gym bro', 'Long distance call', 'Holi colours',
   'Kite fighting', 'Train journey', 'Your favourite cartoon', 'Me trying to cook', 'A sleeping lion', 'Selfie with a cow',
   'Bollywood hero entry', 'Ice cream on a hot day', 'Ghost in the hostel', 'Mehendi hands', 'Dentist visit', 'Lost in a mall',
+  'Me finding the TV remote', 'Biryani vs pizza fight', 'Your face when the bill comes', 'Uncle ji at the airport', 'A cow blocking the road',
+  'Power cut at night', 'Me saying five more minutes', 'A dog chasing a scooter', 'Chai spilling on the laptop', 'The pani puri that was too spicy',
+  'Aunty bargaining for tomatoes', 'Two people sharing one blanket', 'Our dream house', 'A wedding band baaja', 'Me packing for a trip',
 ];
 
 export const HOTSEAT = [
@@ -40,6 +48,10 @@ export const HOTSEAT = [
   'Name 3 dates we have been on.', 'Name 3 words I say too much.', 'Name 3 things I want to learn.',
   'Name 3 things I did on our first date.', 'Name 3 fruits I like.', 'Name 3 things on my bucket list.',
   'Name 3 shows I have binge-watched.', 'Name 3 reasons I love you.', 'Name 3 things in my bag right now.',
+  'Name 3 things I eat when I am sad.', 'Name 3 things I do when I cannot sleep.', 'Name 3 TV characters I relate to.',
+  'Name 3 things I always say before eating.', 'Name 3 shops I cannot walk past.', 'Name 3 things I always keep in my pocket.',
+  'Name 3 festivals I love the most.', 'Name 3 chores I avoid.', 'Name 3 people I call the most.',
+  'Name 3 things I do when I am nervous.', 'Name 3 foods I cannot cook.', 'Name 3 songs I play on repeat.',
 ];
 
 // {S} = the person being rated
@@ -55,6 +67,10 @@ export const SLIDER = [
   'How likely is {S} to become famous?', 'How messy is {S}\'s room?', 'How good is {S} at singing?',
   'How brave is {S} with cockroaches?', 'How spoilt is {S}?', 'How likely is {S} to say sorry first?',
   'How good a driver is {S}?', 'How much does {S} overthink?', 'How good is {S} at taking photos?',
+  'How good is {S} at waking up early?', 'How likely is {S} to talk to a stranger on a train?', 'How dramatic is {S} when the food is late?',
+  'How good is {S} at remembering birthdays?', 'How likely is {S} to start a fight over a small thing?', 'How competitive is {S} in games?',
+  'How good is {S} at hiding a surprise?', 'How clingy is {S} when sleepy?', 'How good is {S} at cracking jokes?',
+  'How likely is {S} to finish all the leftovers?', 'How organised is {S}?', 'How long does {S} take to get ready?',
 ];
 
 // target, then three forbidden words
@@ -70,9 +86,12 @@ export const BOLTI = [
   ['Paneer', 'Cheese', 'Tikka', 'Veg'], ['Pillow', 'Bed', 'Sleep', 'Soft'], ['Umbrella', 'Rain', 'Chhata', 'Open'], ['Dog', 'Puppy', 'Bark', 'Pet'],
   ['Ghost', 'Bhoot', 'Scary', 'Night'], ['Rocket', 'Space', 'ISRO', 'Moon'], ['Mirror', 'Reflection', 'Face', 'Glass'], ['Lipstick', 'Makeup', 'Red', 'Lips'],
   ['Saree', 'Dress', 'Six', 'Wear'], ['Kurkure', 'Chips', 'Snack', 'Masala'], ['Shopping', 'Mall', 'Buy', 'Clothes'], ['Movie date', 'Cinema', 'Popcorn', 'Theatre'],
+  ['Remote', 'TV', 'Channel', 'Button'], ['Lift', 'Elevator', 'Floor', 'Stairs'], ['Charger', 'Phone', 'Battery', 'Wire'], ['Jalebi', 'Sweet', 'Orange', 'Sugar'],
+  ['Wedding card', 'Invite', 'Shaadi', 'Print'], ['Bike', 'Motorcycle', 'Ride', 'Helmet'], ['Cooker', 'Whistle', 'Dal', 'Kitchen'], ['Sunglasses', 'Eyes', 'Cool', 'Sun'],
+  ['Pakora', 'Pakode', 'Fried', 'Rain'], ['Alarm', 'Wake', 'Morning', 'Clock'], ['Kulfi', 'Ice cream', 'Matka', 'Cold'], ['Sofa', 'Couch', 'Sit', 'Living room'],
 ];
 
-export const MOMO_GOOD = [['🥟', 'Hot momo'], ['💸', '₹500 note'], ['☕', 'Masala chai'], ['🍕', 'Last pizza slice'], ['🛌', 'Blanket'], ['🍫', 'Dairy Milk'], ['🍦', 'Kulfi']];
-export const MOMO_TRAP = [['🍽️', 'Jhootha bartan'], ['🥒', 'Karela'], ['🧺', 'Wet towel on bed'], ['⏰', 'Alarm clock'], ['🧾', 'Electricity bill']];
+export const MOMO_GOOD = [['🥟', 'Hot momo'], ['💸', '₹500 note'], ['☕', 'Masala chai'], ['🍕', 'Last pizza slice'], ['🛌', 'Blanket'], ['🍫', 'Dairy Milk'], ['🍦', 'Kulfi'], ['🍟', 'Hot fries'], ['🎁', 'Surprise gift'], ['🍩', 'Fresh jalebi'], ['🥭', 'Ripe mango'], ['🎬', 'Movie tickets'], ['🧁', 'Cupcake'], ['🌹', 'Red rose'], ['🍿', 'Popcorn tub'], ['🥤', 'Cold coffee'], ['💆', 'Free massage']];
+export const MOMO_TRAP = [['🍽️', 'Jhootha bartan'], ['🥒', 'Karela'], ['🧺', 'Wet towel on bed'], ['⏰', 'Alarm clock'], ['🧾', 'Electricity bill'], ['🪳', 'Cockroach'], ['📵', 'Dead phone'], ['🧦', 'Smelly socks'], ['🚫', 'Cancelled plan'], ['🐜', 'Ants in the sugar'], ['🥶', 'Cold dosa'], ['📚', 'Pending homework'], ['🌶️', 'Surprise mirchi'], ['🔌', 'Power cut'], ['🕸️', 'Cobweb']];
 
 export const STAKES = ['Bring water right now 💧', '5-min head massage 💆', 'Voice note: "You are always right" 🎙️', 'Make chai for them ☕', 'They pick tonight’s movie 🎬', '10 compliments in a row 🥰', 'Order their favourite snack 🍟', 'Do the dishes tonight 🍽️'];
