@@ -1,9 +1,15 @@
 import { html, useState, useEffect, useRef } from 'https://esm.sh/htm@3.1.1/preact/standalone';
 import { rpc, fail, usePoll, confetti, share } from './lib.js';
 import { startDuel } from './duel.js';
+import { GiftBox } from './gift.js';
 
-// Home card for the daily question. Each partner answers alone; the reveal opens once both have.
-export function DailyCard({ home, solo, onInvite }) {
+// The top of Home: the surprise gift box, then the daily question underneath it.
+export function DailyCard(props) {
+  return html`<${GiftBox} ...${props} /><${DailyQuestion} ...${props} />`;
+}
+
+// Daily question card. Each partner answers alone; the reveal opens once both have.
+function DailyQuestion({ home, solo, onInvite }) {
   const c = home.couple, me = home.profile.name, partner = c.partner_name;
   const [d, setD] = useState(null);
   const [busy, setBusy] = useState(false);
