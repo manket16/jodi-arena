@@ -1,5 +1,6 @@
 import { html, useState, useEffect, useRef } from 'https://esm.sh/htm@3.1.1/preact/standalone';
 import { sb, rpc, toast, fail, usePoll, Mark } from './lib.js';
+import { DailyCard } from './daily.js';
 
 export const BUCKET = 'memories';
 
@@ -102,6 +103,8 @@ export function Hub({ home, open, goPlay, onInvite }) {
           ${onInvite ? html`<button class="chip" style="border:0;cursor:pointer;margin-top:6px;background:#fff;color:var(--ink);font-weight:700" onClick=${onInvite}>＋ Invite your partner</button>` : html`<p class="small" style="opacity:.9">${me} & ${partner}</p>`}
         </div>
       </section>
+
+      <${DailyCard} home=${home} solo=${!!onInvite} onInvite=${onInvite} />
 
       ${n && n.unread_notes > 0 && html`
         <button class="nudge-card" onClick=${() => open('notes')}>
