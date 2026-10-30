@@ -48,3 +48,8 @@
 .gw-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
 .gw-acts{display:flex;flex-direction:column;gap:6px;align-items:stretch}
 .gw-acts .chip{border:0;cursor:pointer;font:inherit;font-size:13px;text-decoration:none;text-align:center}
+
+/* Home is taller now (gift box + daily question), so let it scroll and keep the four tiles at full size */
+.screen:has(> .hub-grid){height:auto;min-height:0}
+.screen:has(> .hub-grid) .hub-grid{flex:none;grid-template-rows:none;grid-auto-rows:minmax(172px,auto)}
+.screen:has(> .hub-grid) .hub-tile{min-height:172px}
