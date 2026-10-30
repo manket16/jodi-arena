@@ -16,7 +16,7 @@ begin
                where s.at > coalesce(s.sender_seen_at, '-infinity') and s.at > '-infinity'),
     'sent', (select coalesce(json_agg(json_build_object('id', id, 'kind', kind, 'emoji', emoji, 'title', title, 'created_at', created_at,
                                                        'opened_at', opened_at, 'reaction', reaction, 'redeemed_at', redeemed_at) order by created_at desc), '[]'::json)
-             from (select * from public.gifts where from_user = uid order by created_at desc limit 8) t),
+             from (select * from public.gifts where from_user = uid order by created_at desc limit 30) t),
     'wallet', (select coalesce(json_agg(json_build_object('id', id, 'emoji', emoji, 'title', title, 'body', body, 'make_real', make_real) order by opened_at desc), '[]'::json)
                from (select * from public.gifts where to_user = uid and kind = 'coupon' and opened_at is not null and redeemed_at is null
                      order by opened_at desc limit 30) w));

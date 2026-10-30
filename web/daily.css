@@ -53,3 +53,9 @@
 .screen:has(> .hub-grid){height:auto;min-height:0}
 .screen:has(> .hub-grid) .hub-grid{flex:none;grid-template-rows:none;grid-auto-rows:minmax(172px,auto)}
 .screen:has(> .hub-grid) .hub-tile{min-height:172px}
+
+/* Send / Sent buttons under the gift box */
+.gift-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.gift-sentbtn{position:relative;overflow:visible}
+.gift-badge{position:absolute;top:-9px;right:-4px;min-width:26px;height:26px;padding:0 7px;border-radius:99px;background:#F0386B;color:#fff;font-size:14px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.gift-fresh{background:#FFF1F5;border-radius:var(--r-md);padding-left:8px;padding-right:8px}

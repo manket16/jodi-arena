@@ -98,12 +98,22 @@ function SendSheet({ partner, onClose, onSent }) {
     </${Modal}>`;
 }
 
-const eventLine = (e, partner) => {
-  const what = `${e.emoji} ${e.title}`;
-  if (e.redeemed_at) return `${partner} redeemed your ${what}`;
-  if (e.reaction) return `${partner} reacted ${e.reaction} to your ${what}`;
-  return `${partner} opened your ${what}`;
-};
+function SentSheet({ sent, newIds, partner, onClose }) {
+  const fresh = sent.filter((g) => newIds.includes(g.id));
+  const older = sent.filter((g) => !newIds.includes(g.id));
+  const row = (g, isNew) => html`
+    <div class=${'gw-row' + (isNew ? ' gift-fresh' : '')} key=${g.id}>
+      <span class="gift-item-emo">${g.emoji}</span>
+      <span class="grow"><b>${g.title}</b><br/><span class="small muted">${sentStatus(g, partner)}</span></span>
+      ${isNew && html`<span class="chip">New</span>`}
+    </div>`;
+  return html`
+    <${Modal} title="Sent by you" onClose=${onClose}>
+      ${sent.length === 0 && html`<p class="muted center">Nothing sent yet. Surprise ${partner} and it will show up here.</p>`}
+      ${fresh.length > 0 && html`<div><p class="gift-kind">New</p>${fresh.map((g) => row(g, true))}</div>`}
+      ${older.length > 0 && html`<div><p class="gift-kind">${fresh.length ? 'Earlier' : 'Past surprises'}</p>${older.map((g) => row(g, false))}</div>`}
+    </${Modal}>`;
+}
 
 const sentStatus = (g, partner) => {
   if (g.redeemed_at) return `${partner} redeemed it`;
@@ -119,10 +129,11 @@ export function GiftBox({ home, solo, onInvite }) {
   const [gift, setGift] = useState(null);
   const [sending, setSending] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [sentNew, setSentNew] = useState(null);
 
   const load = () => rpc('gift_box').then(setBox).catch(() => {});
   useEffect(() => { load(); }, []);
-  usePoll(load, 12000, !gift && !sending);
+  usePoll(load, 12000, !gift && !sending && !sentNew);
 
   if (!box) return null;
   const waiting = box.unopened.length;
@@ -142,16 +153,14 @@ export function GiftBox({ home, solo, onInvite }) {
   const redeem = async (id) => {
     try { await rpc('redeem_gift', { p_id: id }); toast('Coupon used. Tell them to deliver 😄'); load(); } catch (e) { fail(e); }
   };
-  const dismiss = async () => { try { await rpc('mark_gifts_seen'); } catch (_) { /* ignore */ } load(); };
-  const ev = box.events[0];
+  const newCount = box.events.length;
+  const openSent = async () => {
+    setSentNew(box.events.map((e) => e.id));
+    if (box.events.length) { try { await rpc('mark_gifts_seen'); } catch (_) { /* ignore */ } load(); }
+  };
 
   return html`
     <section class="gift-wrap" aria-label="Surprise box">
-      ${ev && html`
-        <button class="gift-event" onClick=${dismiss}>
-          <span class="grow">${eventLine(ev, partner)}${box.events.length > 1 ? ` (+${box.events.length - 1} more)` : ''}</span><span class="small">Got it</span>
-        </button>`}
-
       ${waiting > 0 ? html`
         <button class="gift-card hot" disabled=${busy} onClick=${openNext}>
           <span class="gift-big shake">🎁</span>
@@ -166,8 +175,11 @@ export function GiftBox({ home, solo, onInvite }) {
           <span class="grow"><b>Nothing waiting right now</b><br/><span class="small muted">${canSend ? `Why not send ${partner} one?` : 'Invite your partner to send and receive surprises.'}</span></span>
         </div>`}
 
-      ${canSend
-        ? html`<button class="btn ghost" onClick=${() => setSending(true)}>🎁 Send ${partner} a surprise</button>`
+      ${canSend ? html`
+        <div class="gift-actions">
+          <button class="btn ghost" onClick=${() => setSending(true)}>🎁 Send gift</button>
+          <button class="btn ghost gift-sentbtn" onClick=${openSent}>💌 Sent by you${newCount > 0 && html`<span class="gift-badge" aria-label=${newCount + ' new'}>${newCount}</span>`}</button>
+        </div>`
         : solo && html`<button class="btn ghost" onClick=${onInvite}>＋ Invite your partner to send surprises</button>`}
 
       ${box.wallet.length > 0 && html`
@@ -184,17 +196,8 @@ export function GiftBox({ home, solo, onInvite }) {
             </div>`; })}
         </div>`}
 
-      ${box.sent && box.sent.length > 0 && html`
-        <div class="gift-wallet">
-          <h3>Sent by you</h3>
-          ${box.sent.map((g) => html`
-            <div class="gw-row">
-              <span class="gift-item-emo">${g.emoji}</span>
-              <span class="grow"><b>${g.title}</b><br/><span class="small muted">${sentStatus(g, partner)}</span></span>
-            </div>`)}
-        </div>`}
-
       ${gift && html`<${Reveal} gift=${gift} partner=${partner} onClose=${() => { setGift(null); load(); }} />`}
+      ${sentNew && html`<${SentSheet} sent=${box.sent || []} newIds=${sentNew} partner=${partner} onClose=${() => { setSentNew(null); load(); }} />`}
       ${sending && html`<${SendSheet} partner=${partner} onClose=${() => setSending(false)} onSent=${() => { setSending(false); toast(`Sent! ${partner} will find a wrapped box 🎁`); load(); }} />`}
     </section>`;
 }
