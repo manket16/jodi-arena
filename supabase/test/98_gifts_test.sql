@@ -33,6 +33,10 @@ select pg_temp.as_user('e1000000-0000-0000-0000-000000000002');
 select pg_temp.check(json_array_length(gift_box()->'unopened') = 1, 'one wrapped gift waiting');
 select pg_temp.check(not ((gift_box()->'unopened'->0)::jsonb ? 'title') and not ((gift_box()->'unopened'->0)::jsonb ? 'body'), 'content stays hidden until opened');
 
+-- sender history lists what was sent, even after nothing is pending
+select pg_temp.as_user('e1000000-0000-0000-0000-000000000001');
+select pg_temp.check(json_array_length(gift_box()->'sent') = 1 and (gift_box()->'sent'->0->>'opened_at') is null, 'sent history shows unopened gift');
+
 -- Raj cannot open Simran's gift
 select pg_temp.as_user('e1000000-0000-0000-0000-000000000001');
 select pg_temp.expect_fail(format($$select open_gift(%L)$$, :'g1'), 'not here');
@@ -47,6 +51,9 @@ select pg_temp.check(json_array_length(gift_box()->'wallet') = 1, 'opened coupon
 select pg_temp.as_user('e1000000-0000-0000-0000-000000000001');
 select pg_temp.check(json_array_length(gift_box()->'events') = 1 and (gift_box()->'events'->0->>'opened_at') is not null, 'sender sees the open');
 
+select pg_temp.as_user('e1000000-0000-0000-0000-000000000001');
+select mark_gifts_seen();
+select pg_temp.check(json_array_length(gift_box()->'events') = 0 and (gift_box()->'sent'->0->>'opened_at') is not null, 'history survives dismissing the banner');
 -- reaction
 select pg_temp.as_user('e1000000-0000-0000-0000-000000000002');
 select pg_temp.expect_fail(format($$select react_gift(%L, 'x')$$, :'g1'), 'Pick a reaction');

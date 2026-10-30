@@ -105,6 +105,13 @@ const eventLine = (e, partner) => {
   return `${partner} opened your ${what}`;
 };
 
+const sentStatus = (g, partner) => {
+  if (g.redeemed_at) return `${partner} redeemed it`;
+  if (g.reaction) return `${partner} reacted ${g.reaction}`;
+  if (g.opened_at) return `${partner} opened it`;
+  return `Waiting for ${partner} to open`;
+};
+
 // Surprise gift box: the first thing on Home. Receiver sees a wrapped box; sender sees what happened next.
 export function GiftBox({ home, solo, onInvite }) {
   const partner = home.couple.partner_name;
@@ -175,6 +182,16 @@ export function GiftBox({ home, solo, onInvite }) {
                 <button class="chip" onClick=${() => redeem(w.id)}>Use it</button>
               </span>
             </div>`; })}
+        </div>`}
+
+      ${box.sent && box.sent.length > 0 && html`
+        <div class="gift-wallet">
+          <h3>Sent by you</h3>
+          ${box.sent.map((g) => html`
+            <div class="gw-row">
+              <span class="gift-item-emo">${g.emoji}</span>
+              <span class="grow"><b>${g.title}</b><br/><span class="small muted">${sentStatus(g, partner)}</span></span>
+            </div>`)}
         </div>`}
 
       ${gift && html`<${Reveal} gift=${gift} partner=${partner} onClose=${() => { setGift(null); load(); }} />`}
