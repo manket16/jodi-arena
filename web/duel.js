@@ -6,6 +6,7 @@ import { rpc, toast, fail, confetti, buzz, blip, Mark } from './lib.js';
 import { send, onMessage, onPresence } from './live.js';
 import { META, SYNC_HOW, create, act, tick, role, TIMES } from './duel-engine.js';
 import { STAKES } from './duel-content.js';
+import { STAKES_BY_LEVEL } from './spice-content.js';
 import { Sheet } from './hub.js';
 import { StageCard } from './stages.js';
 import { isNew } from './spice-engine.js';
@@ -143,13 +144,7 @@ function Lobby({ d, uid, me, partner }) {
       <div class="center stack"><div class="lobby-emo">${g.emo}</div><h1>${g.name}</h1><p class="muted">${g.sub}</p></div>
       <ol class="how">${g.how.map((h) => html`<li>${h}</li>`)}</ol>
       <p class="sync-hint">💞 <b>Sync points:</b> ${SYNC_HOW[d.game]}</p>
-      <section class="panel stack center">
-        <h3>Loser has to…</h3>
-        <${Wheel} items=${list} spin=${spin} />
-        ${stake ? html`<p class="stake-result">${stake}</p>` : html`<p class="muted small">${mine ? 'Your own spins. Spin it, or write one.' : 'Spin it, or write your own.'}</p>`}
-        <div class="row"><button class="btn ghost grow" onClick=${doSpin} disabled=${inviting}>🎡 Spin</button></div>
-        <div class="row"><input class="input grow" maxlength="60" placeholder="Or type a custom stake" value=${custom} onInput=${(e) => setCustom(e.target.value)} disabled=${inviting} /><button class="btn ghost" disabled=${!custom.trim() || inviting} onClick=${() => setStake(custom.trim())}>Use</button></div>
-      </section>
+      <p class="sync-hint">🎡 The winner spins the wheel after the game to decide what the loser has to do.</p>
       ${inviting ? html`
         <div class="panel stack center">
           <p class="pulse"><b>Waiting for ${partner} to join…</b></p>
@@ -219,6 +214,11 @@ function Room({ d, uid, home }) {
     if (isNew(s.game)) setTimeout(() => checkUnlock(s.game, before), 2200);
   }, [s && s.over]);
 
+  // the host stores the stake once the winner's spin lands
+  useEffect(() => {
+    if (d.host && s && s.over && s.spin && s.spin.text) rpc('set_duel_stake', { p_stake: s.spin.text }).catch(() => {});
+  }, [s && s.spin && s.spin.text]);
+
   const doAct = (a) => {
     buzz(15);
     if (d.host) { const ns = act(sRef.current, uid, a, Date.now()); if (ns !== sRef.current) publish(ns); }
@@ -282,9 +282,42 @@ function Countdown({ s, now }) {
   return html`<div class="count-big" key=${n}>${n}</div>`;
 }
 
-function Over({ s, uid, name, partnerName, d, rematch }) {
+// the "loser has to…" spin lives here, on the result page. The winner spins; the spin and its result are in the shared state, so both phones see it.
+function StakeSpin({ s, uid, doAct, d, partnerName }) {
+  const mine = useSpins();
+  const [rot, setRot] = useState(0);
+  const [shown, setShown] = useState(null);
+  const [custom, setCustom] = useState('');
+  const [busy, setBusy] = useState(false);
+  const list = mine || (isNew(s.game) ? STAKES_BY_LEVEL[d.level || 1] : STAKES);
+  const iWon = s.win === uid;
+  useEffect(() => {
+    if (!s.spin) return;
+    if (s.spin.custom) { setShown(s.spin.text); return; }
+    setRot(s.spin.rot); buzz(20);
+    const t = setTimeout(() => { setShown(s.spin.text); buzz(40); if (s.win !== uid) confetti(); }, 2300);
+    return () => clearTimeout(t);
+  }, [s.spin && s.spin.text]);
+  const spin = () => { setBusy(true); const [i, r] = nextSpin(0, list.length); doAct({ t: 'spin', rot: r, text: list[i] }); };
+  const useCustom = () => { setBusy(true); doAct({ t: 'spin', rot: 0, text: custom.trim(), custom: true }); };
+  const loserName = iWon ? partnerName : 'You';
+  return html`
+    <section class="panel stack center">
+      <h3>${s.spin ? 'The deal' : 'Loser has to…'}</h3>
+      <${Wheel} items=${list} spin=${rot} />
+      ${shown
+        ? html`<p class="stake-result">${shown}</p><p class="small muted">${loserName === 'You' ? 'You have' : `${loserName} has`} to do this. Saved in the Stakes tab.</p>`
+        : s.spin ? html`<p class="pulse muted small">Spinning…</p>`
+        : iWon ? html`
+            <p class="muted small">You won! Spin to decide what ${partnerName} has to do.</p>
+            <button class="btn game big-cta" onClick=${spin} disabled=${busy}>🎡 Spin</button>
+            <div class="row"><input class="input grow" maxlength="60" placeholder="Or write your own" value=${custom} onInput=${(e) => setCustom(e.target.value)} /><button class="btn ghost" disabled=${!custom.trim() || busy} onClick=${useCustom}>Use</button></div>`
+        : html`<p class="pulse muted small">${partnerName} won. Waiting for them to spin…</p>`}
+    </section>`;
+}
+
+function Over({ s, uid, name, partnerName, d, rematch, doAct }) {
   const won = s.win === uid, tie = !s.win;
-  const loser = tie ? null : s.win === uid ? partnerName : 'You';
   return html`
     <div class="stack-lg center">
       <div style="font-size:72px">${tie ? '🤝' : won ? '🏆' : '😅'}</div>
@@ -292,7 +325,7 @@ function Over({ s, uid, name, partnerName, d, rematch }) {
       <p class="big-score">${s.sc[s.p[0]]} – ${s.sc[s.p[1]]}</p>
       ${s.game === 'draw' && html`<p class="small muted">Drawing time: ${name(s.p[0])} ${Math.round(s.time[s.p[0]] / 1000)}s · ${name(s.p[1])} ${Math.round(s.time[s.p[1]] / 1000)}s</p>`}
       ${s.game !== 'momo' && html`<div class="sync-card"><span class="small">You two know each other</span><b>💞 +${s.sync} Sync points</b><span class="small muted">${s.sync > 0 ? 'Added to your jodi total. See the Sync tab.' : 'Read each other better next round!'}</span></div>`}
-      ${s.stake && !tie && html`<div class="owe-card"><span class="small">The deal</span><b>${loser === 'You' ? 'You have' : `${loser} has`} to: ${s.stake}</b><span class="small muted">Saved in the Stakes tab.</span></div>`}
+      ${!tie && html`<${StakeSpin} s=${s} uid=${uid} doAct=${doAct} d=${d} partnerName=${partnerName} />`}
       <button class="btn game big-cta" onClick=${rematch}>Rematch 🔁</button>
       <button class="btn ghost" onClick=${() => { send({ t: 'leave', id: d.id }); setDuel(null); }}>Back to games</button>
     </div>`;

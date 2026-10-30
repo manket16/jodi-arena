@@ -108,6 +108,15 @@ function nextBolti(s) {
 
 // ---------- actions ----------
 export function act(state, by, a, now) {
+  // after the game: only the winner spins (or writes) the stake, once. Both phones read it from the shared state.
+  if (state && state.over && a && a.t === 'spin') {
+    const text = String(a.text || '').trim().slice(0, 60);
+    if (!state.win || by !== state.win || state.spin || !text) return state;
+    const s = clone(state);
+    s.spin = { text, rot: Number.isFinite(a.rot) ? a.rot : 0, custom: !!a.custom };
+    s.stake = text;
+    return s;
+  }
   if (!state || state.over || !a) return state;
   const s = clone(state);
   const me = s.p.indexOf(by);

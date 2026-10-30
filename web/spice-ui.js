@@ -136,14 +136,7 @@ export function PreGame({ d, uid, me, partner, online, Wheel, nextSpin, mineSpin
         </div>
       </section>
 
-      <section class="panel stack center">
-        <h3>${d.game === 'kaunbola' ? '3' : '2'}. Loser has to…</h3>
-        ${mineSpins && html`<div class="seg"><button type="button" class=${src === 'level' ? 'on' : ''} onClick=${() => setSrc('level')} disabled=${inviting}>${LEVELS[level - 1].emo} ${LEVELS[level - 1].name} stakes</button><button type="button" class=${src === 'ours' ? 'on' : ''} onClick=${() => setSrc('ours')} disabled=${inviting}>🎡 Our spins</button></div>`}
-        <${Wheel} items=${list} spin=${spin} />
-        ${stake ? html`<p class="stake-result">${stake}</p>` : html`<p class="muted small">Tap Spin to pick, or write your own below.</p>`}
-        <div class="row"><button class="btn ghost grow" onClick=${doSpin} disabled=${inviting}>🎡 Spin</button></div>
-        <div class="row"><input class="input grow" maxlength="60" placeholder="Or write your own stake" value=${custom} onInput=${(e) => setCustom(e.target.value)} disabled=${inviting} /><button class="btn ghost" disabled=${!custom.trim() || inviting} onClick=${() => setStake(custom.trim())}>Use</button></div>
-      </section>
+      <p class="sync-hint">🎡 The winner spins the wheel after the game to decide what the loser has to do.</p>
 
       ${d.game === 'camera' && html`
         <section class="stack">
