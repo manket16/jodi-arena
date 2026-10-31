@@ -130,3 +130,4 @@
 .spin-emo{font-size:30px}
 .screen.play-screen{height:auto;min-height:calc(100dvh - 116px - env(safe-area-inset-top) - env(safe-area-inset-bottom))}
 .duel-grid{grid-template-rows:repeat(3,minmax(128px,1fr))}
+.nav button b{position:relative}.nav-badge{position:absolute;top:-4px;right:-10px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:99px;background:var(--rani);color:#fff;font:700 11px/18px var(--display);font-style:normal;text-align:center;border:2px solid #fff;line-height:14px}

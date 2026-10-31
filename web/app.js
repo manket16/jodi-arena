@@ -283,6 +283,11 @@ function App() {
   const [session, setSession] = useState(undefined);
   const [home, setHome] = useState(null);
   const [tab, setTab] = useState(new URLSearchParams(location.search).has('play') ? 'play' : 'home');
+  const [owe, setOwe] = useState(0);
+  useEffect(() => {
+    if (solo) return;
+    rpc('duel_board').then((b) => setOwe(b.recent.filter((x) => x.stake && x.loser && !x.paid_at).length)).catch(() => {});
+  }, [tab, solo]);
   const [sub, setSub] = useState(null);
   const [t, setT] = useState(null);
   const [login, setLogin] = useState(false);
@@ -323,7 +328,7 @@ function App() {
     ${sub.k === 'scenes' && html`<${ScenesScreen} home=${hv} back=${() => setSub(null)} />`}
     ${sub.k === 'create' && html`<${CreateScreen} home=${hv} back=${() => setSub(null)} />`}`;
   else screen = html`
-    ${tab === 'home' && html`${solo ? '' : html`<${PendingStakes} uid=${uid} go=${() => setTab('stakes')} />`}<${Hub} home=${hv} onInvite=${solo ? () => share(inviteMsg(home) + ' ' + inviteLink(home)) : null} open=${(k, o) => setSub({ k, ...(o || {}) })} goPlay=${() => setTab('play')} />`}
+    ${tab === 'home' && html`<${Hub} home=${hv} onInvite=${solo ? () => share(inviteMsg(home) + ' ' + inviteLink(home)) : null} open=${(k, o) => setSub({ k, ...(o || {}) })} goPlay=${() => setTab('play')} />`}
     ${tab === 'play' && (solo
       ? html`<${SoloLocked} home=${home} title="Play together" line="Live games for two phones. Have a look, they unlock the moment your partner joins." games />`
       : html`<${PlayScreen} home=${home} toStakes=${() => setTab('stakes')} toMe=${() => setTab('me')} />`)}
@@ -336,7 +341,7 @@ function App() {
     ${tab === 'me' && html`<${MeScreen} home=${hv} guest=${!!home.couple.me_guest} reload=${reload} />`}
     <nav class="nav"><div>
       ${[['home', '🏠', 'Home'], ['play', '🎮', 'Play'], ['sync', '🏆', 'Sync'], ['stakes', '💝', 'Stakes'], ['me', '🙂', 'Me']].map(([k, i, l]) => html`
-        <button class=${tab === k ? 'on' : ''} aria-current=${tab === k ? 'page' : null} onClick=${() => { setTab(k); if (k === 'home') reload(); }}><b>${i}</b>${l}</button>`)}
+        <button class=${tab === k ? 'on' : ''} aria-current=${tab === k ? 'page' : null} onClick=${() => { setTab(k); if (k === 'home') reload(); }}><b>${i}${k === 'stakes' && owe > 0 && tab !== 'stakes' ? html`<i class="nav-badge">${owe}</i>` : ''}</b>${l}</button>`)}
     </div></nav>`;
 
   return html`${screen}${live && !isAdminPage && html`<${DuelLayer} home=${home} uid=${uid} />`}${t && html`<div class=${'toast' + (t.err ? ' err' : '')} role="status">${t.msg}</div>`}`;
