@@ -3,6 +3,12 @@
 // tick() handles timers. Every function returns a new state object (or the same one if nothing changed).
 import { JHOOTH, DRAW, HOTSEAT, SLIDER, BOLTI, MOMO_GOOD, MOMO_TRAP } from './duel-content.js';
 import { isNew, initNew, startNew, actNew, tickNew } from './spice-engine.js';
+import { isLD, initLD, startLD, actLD, tickLD } from './ld-engine.js';
+
+// games that use the photo-round rules in spice-engine.js (Camera Roll Roulette, Kaun Bola? and the Photo Hunt)
+const viaSpice = (g) => isNew(g) || g === 'scavenger';
+// games hidden from the Play screen because they suit couples in the same room. Old results still show.
+export const HIDDEN = ['jhooth', 'draw', 'bolti', 'camera', 'kaunbola'];
 
 export const META = {
   jhooth: { name: 'Jhooth Pakdo', emo: '🕵️', color: '#7C3AED', soft: '#EDE9FE', sub: 'Tell a truth or a lie. Can your partner read your face?',
@@ -21,6 +27,12 @@ export const META = {
     how: ['You both see the same photo challenge. You have 25 seconds to find a matching photo in your gallery.', 'Both photos flip over side by side. Fastest finger gets +1.', 'Each of you votes for the best photo. Agree on a photo and it gets +2. Best of 3 rounds.'] },
   kaunbola: { name: 'Kaun Bola?', emo: '👄', color: '#9333EA', soft: '#F3E8FF', sub: 'Muted mic, dramatic lips! Mouth the secret phrase while your partner tries to read your lips in 20 seconds.',
     how: ['The speaker mouths a secret phrase with no sound, in a funny style.', 'The other one has 20 seconds to read the lips. A hint appears at 10 seconds.', 'Crack it fast for more points. 4 turns, you swap every turn.'] },
+  quiz: { name: 'Quick Quiz', emo: '⚡', color: '#2563EB', soft: '#DBEAFE', sub: 'Same question, both phones, 12 seconds. Fastest right answer wins.',
+    how: ['The same question lands on both phones at the same time.', 'Tap the right answer. Correct is +1, and the faster correct answer gets +1 more.', '8 questions on India, movies, music and food. Most points wins.'] },
+  scavenger: { name: 'Photo Hunt', emo: '🧭', color: '#0D9488', soft: '#CCFBF1', sub: 'Race to snap a photo of the same thing wherever you are.',
+    how: ['You both get the same prompt, like “something red near you”.', 'Take a photo of it in 45 seconds. Faster gets +1.', 'Photos flip over side by side and you vote for the best one. 3 rounds. Photos are never saved.'] },
+  listen: { name: 'Listen Together', emo: '🎧', color: '#7C3AED', soft: '#EDE9FE', sub: 'Play the same song at the same second, then guess how it made your partner feel.',
+    how: ['One of you picks a song. Both open it on YouTube or Spotify.', 'A countdown tells you when to press play together. Listen for 40 seconds.', 'Pick how it made you feel and guess how it made your partner feel. 3 songs, matching guesses score.'] }
 };
 
 // How each game earns Sync points: points for a partner who reads you right. Shown in the lobby.
@@ -33,6 +45,9 @@ export const SYNC_HOW = {
   bolti: 'Your partner says the word from your clues: +5 each',
   camera: 'You and your partner pick the same photo, or each pick the other’s: +10 a round',
   kaunbola: 'Your partner reads your lips: +10 or +5 a turn',
+  quiz: 'This one is just a race, no Sync points',
+  scavenger: 'You both vote for the same photo, or each pick the other’s: +10 a round',
+  listen: 'You guess how the song made your partner feel: +10 each time',
 };
 
 const WIN = { jhooth: 3, momo: 5 };
@@ -71,12 +86,14 @@ export function create(game, players, opts = {}) {
   };
   if (game === 'draw') s.time = { [players[0]]: 0, [players[1]]: 0 };
   if (game === 'bolti') s.turn = 0;
-  if (isNew(game)) initNew(s, opts);
+  if (viaSpice(game)) initNew(s, opts);
+  if (isLD(game)) initLD(s);
   return s;
 }
 
 function startRound(s, now) {
-  if (isNew(s.game)) return startNew(s, now);
+  if (viaSpice(s.game)) return startNew(s, now);
+  if (isLD(s.game)) return startLD(s, now);
   s.rd += 1; s.gain = 0;
   const A = s.p[s.a];
   if (s.game === 'jhooth') { s.q = JHOOTH[pick(s, 'jhooth', JHOOTH.length, s.avoid.jhooth)]; s.ph = 'choose'; s.secret = null; s.verdict = null; s.dl = null; }
@@ -130,7 +147,8 @@ export function act(state, by, a, now) {
     return s;
   }
 
-  if (isNew(s.game)) return actNew(s, by, a, now, me) || state;
+  if (viaSpice(s.game)) return actNew(s, by, a, now, me) || state;
+  if (isLD(s.game)) return actLD(s, by, a, now, me) || state;
 
   switch (s.game) {
     case 'jhooth':
@@ -231,7 +249,8 @@ export function tick(state, now) {
   if (!s0 || s0.over) return s0;
   if (s0.ph === 'go' && now >= s0.dl) return startRound(clone(s0), now);
 
-  if (isNew(s0.game)) return tickNew(s0, now);
+  if (viaSpice(s0.game)) return tickNew(s0, now);
+  if (isLD(s0.game)) return tickLD(s0, now);
   if (s0.game === 'momo' && s0.ph === 'play') return tickMomo(s0, now);
   if (!s0.dl || now < s0.dl) return s0;
   const s = clone(s0);

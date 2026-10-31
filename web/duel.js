@@ -4,11 +4,12 @@
 import { html, useState, useEffect, useRef } from 'https://esm.sh/htm@3.1.1/preact/standalone';
 import { rpc, toast, fail, confetti, buzz, blip, Mark } from './lib.js';
 import { send, onMessage, onPresence } from './live.js';
-import { META, SYNC_HOW, create, act, tick, role, TIMES } from './duel-engine.js';
+import { META, SYNC_HOW, HIDDEN, create, act, tick, role, TIMES } from './duel-engine.js';
 import { STAKES } from './duel-content.js';
 import { STAKES_BY_LEVEL } from './spice-content.js';
 import { Sheet } from './hub.js';
 import { uploadProof, ProofMedia } from './gift.js';
+import { Quiz, Listen } from './ld-ui.js';
 import { StageCard } from './stages.js';
 import { isNew } from './spice-engine.js';
 import { PreGame, CameraRoll, KaunBola, UnlockModal, loadProgress, getProgress, usedPrompts, checkUnlock } from './spice-ui.js';
@@ -43,7 +44,7 @@ const stakeList = (mine) => mine || STAKES;
 const seenKey = (k) => `jodi_seen_${k}`;
 function loadAvoid() {
   const out = {};
-  for (const k of ['jhooth', 'draw', 'hotseat', 'slider', 'bolti']) { try { out[k] = JSON.parse(localStorage.getItem(seenKey(k)) || '[]'); } catch (_) { out[k] = []; } }
+  for (const k of ['jhooth', 'draw', 'hotseat', 'slider', 'bolti', 'quiz', 'listen', 'scavenger']) { try { out[k] = JSON.parse(localStorage.getItem(seenKey(k)) || '[]'); } catch (_) { out[k] = []; } }
   return out;
 }
 function saveSeen(s) {
@@ -247,7 +248,7 @@ function Room({ d, uid, home }) {
         <div class="score-pill"><span class=${r.me === s.p[0] ? 'mine' : ''}>${name(s.p[0])} <b>${s.sc[s.p[0]]}</b></span><span class="vs">${g.emo}</span><span class=${r.me === s.p[1] ? 'mine' : ''}><b>${s.sc[s.p[1]]}</b> ${name(s.p[1])}</span></div>
       </div>
       ${s.stake && !s.over && html`<p class="stake-line">Loser has to: <b>${s.stake}</b></p>`}
-      ${s.game !== 'momo' && !s.over && s.ph !== 'intro' && s.ph !== 'go' && html`<p class="sync-line">💞 Jodi Sync <b>${s.sync}</b>${s.ph === 'reveal' && s.gain > 0 ? html` <span class="sync-gain" key=${s.rd + '-' + s.gain}>+${s.gain}</span>` : ''}</p>`}
+      ${s.game !== 'momo' && s.game !== 'quiz' && !s.over && s.ph !== 'intro' && s.ph !== 'go' && html`<p class="sync-line">💞 Jodi Sync <b>${s.sync}</b>${s.ph === 'reveal' && s.gain > 0 ? html` <span class="sync-gain" key=${s.rd + '-' + s.gain}>+${s.gain}</span>` : ''}</p>`}
       ${s.ph === 'intro' ? html`<${Intro} ...${P} />` : s.ph === 'go' ? html`<${Countdown} ...${P} />` : s.over ? html`<${Over} ...${P} />` : html`<${GAMES[s.game]} ...${P} />`}
     </div>`;
 }
@@ -325,7 +326,7 @@ function Over({ s, uid, name, partnerName, d, rematch, doAct }) {
       <h1>${tie ? 'It’s a tie!' : won ? 'You win!' : `${partnerName} wins!`}</h1>
       <p class="big-score">${s.sc[s.p[0]]} – ${s.sc[s.p[1]]}</p>
       ${s.game === 'draw' && html`<p class="small muted">Drawing time: ${name(s.p[0])} ${Math.round(s.time[s.p[0]] / 1000)}s · ${name(s.p[1])} ${Math.round(s.time[s.p[1]] / 1000)}s</p>`}
-      ${s.game !== 'momo' && html`<div class="sync-card"><span class="small">You two know each other</span><b>💞 +${s.sync} Sync points</b><span class="small muted">${s.sync > 0 ? 'Added to your jodi total. See the Sync tab.' : 'Read each other better next round!'}</span></div>`}
+      ${s.game !== 'momo' && s.game !== 'quiz' && html`<div class="sync-card"><span class="small">You two know each other</span><b>💞 +${s.sync} Sync points</b><span class="small muted">${s.sync > 0 ? 'Added to your jodi total. See the Sync tab.' : 'Read each other better next round!'}</span></div>`}
       ${!tie && html`<${StakeSpin} s=${s} uid=${uid} doAct=${doAct} d=${d} partnerName=${partnerName} />`}
       <button class="btn game big-cta" onClick=${rematch}>Rematch 🔁</button>
       <button class="btn ghost" onClick=${() => { send({ t: 'leave', id: d.id }); setDuel(null); }}>Back to games</button>
@@ -514,7 +515,7 @@ function Bolti({ s, r, doAct, now, name }) {
   return null;
 }
 
-const GAMES = { jhooth: Jhooth, draw: Draw, momo: Momo, hotseat: HotSeat, slider: Slider, bolti: Bolti, camera: CameraRoll, kaunbola: KaunBola };
+const GAMES = { jhooth: Jhooth, draw: Draw, momo: Momo, hotseat: HotSeat, slider: Slider, bolti: Bolti, camera: CameraRoll, kaunbola: KaunBola, quiz: Quiz, listen: Listen, scavenger: CameraRoll };
 
 // ---------- the Play tab ----------
 export function PlayScreen({ home, toStakes, toMe }) {
@@ -545,7 +546,7 @@ export function PlayScreen({ home, toStakes, toMe }) {
       </button>
       ${board && html`<button class="tally" onClick=${toStakes}><span>You <b>${board.my_wins}</b></span><span class="small muted">${owed.length ? `${owed.length} stake${owed.length > 1 ? 's' : ''} pending` : 'All stakes paid'}</span><span><b>${board.partner_wins}</b> ${partner}</span></button>`}
       <div class="duel-grid">
-        ${Object.entries(META).map(([k, g]) => html`
+        ${Object.entries(META).filter(([k]) => !HIDDEN.includes(k)).map(([k, g]) => html`
           <button class=${'duel-card' + (guestLocked && !free.includes(k) ? ' locked' : '')} style=${`--g:${g.color};--g-soft:${g.soft}`} onClick=${() => go(k)}>
             ${guestLocked && !free.includes(k) && html`<span class="dlock">🔒</span>`}
             <span class="dc-emo">${g.emo}</span><b>${g.name}</b><span class="dc-sub">${g.sub}</span>
@@ -617,7 +618,7 @@ export function StakesScreen({ home, uid }) {
       ${done.length > 0 && html`<h3>Paid up</h3><div class="stack">${done.map((x) => html`<div class="iou done"><span class="iou-emo">✅</span><span class="grow"><b>${x.stake}</b><span class="small muted">${x.loser === uid ? 'You paid' : `${partner} paid`}</span></span></div>`)}</div>`}
       ${proofFor && html`<${StakeProofSheet} x=${proofFor} coupleId=${home.couple.id} partner=${partner} onClose=${() => setProofFor(null)} onDone=${() => { setProofFor(null); load(); }} />`}
       <h3>Head to head</h3>
-      <div class="stack">${Object.entries(META).map(([k, g]) => { const r = b.by_game[k] || { me: 0, partner: 0 }; return html`<div class="h2h"><span>${g.emo} ${g.name}</span><span><b>${r.me}</b> – <b>${r.partner}</b></span></div>`; })}</div>
+      <div class="stack">${Object.entries(META).filter(([k]) => !HIDDEN.includes(k) || (b.by_game[k] && (b.by_game[k].me || b.by_game[k].partner))).map(([k, g]) => { const r = b.by_game[k] || { me: 0, partner: 0 }; return html`<div class="h2h"><span>${g.emo} ${g.name}</span><span><b>${r.me}</b> – <b>${r.partner}</b></span></div>`; })}</div>
     </div>`;
 }
 
@@ -650,7 +651,7 @@ export function SyncScreen({ home, goPlay }) {
       ${!onBoard && mine.points === 0 && b.top.length > 0 && html`<p class="muted small center">Earn your first points to join the board.</p>`}
       <div class="panel stack small">
         <b>How Sync points work</b>
-        ${Object.entries(META).filter(([k]) => k !== 'momo').map(([k, g]) => html`<p>${g.emo} <b>${g.name}:</b> ${SYNC_HOW[k]}</p>`)}
+        ${Object.entries(META).filter(([k]) => k !== 'momo' && k !== 'quiz' && !HIDDEN.includes(k)).map(([k, g]) => html`<p>${g.emo} <b>${g.name}:</b> ${SYNC_HOW[k]}</p>`)}
       </div>
     </div>`;
 }

@@ -235,6 +235,7 @@ export function CameraRoll({ s, r, uid, doAct, now, name, partnerName, d }) {
   const [busy, setBusy] = useState(false);
   useEffect(() => { const f = () => bump((x) => x + 1); photoSubs.add(f); return () => photoSubs.delete(f); }, []);
   const partner = r.partner;
+  const scav = s.game === 'scavenger'; // the Photo Hunt: snap a fresh photo, 45 seconds
   const myLock = s.lock && uid in s.lock, theirLock = s.lock && partner in s.lock;
   const mine = photos.get(pkey(d.id, s.rd, uid)), theirs = photos.get(pkey(d.id, s.rd, partner));
   const alerted = useRef(0);
@@ -262,20 +263,20 @@ export function CameraRoll({ s, r, uid, doAct, now, name, partnerName, d }) {
   };
 
   const left = Math.max(0, Math.ceil((s.dl - now()) / 1000));
-  const head = html`<div class="row between"><${Badge} level=${s.level} /><span class="small muted">Round ${s.rd} of 3</span></div>`;
+  const head = html`<div class="row between">${scav ? html`<span class="lvl-badge">🧭 Photo Hunt</span>` : html`<${Badge} level=${s.level} />`}<span class="small muted">Round ${s.rd} of 3</span></div>`;
 
   if (s.ph === 'scramble') return html`
     ${head}
     ${theirLock && !myLock && html`<div class="panic" role="alert">🚨 ${partnerName} just dropped a photo! ${left} seconds left!</div>`}
-    <${Clock} s=${s} now=${now} total=${25000} />
+    <${Clock} s=${s} now=${now} total=${scav ? 45000 : 25000} />
     <div class="qcard">${s.q}</div>
     ${myLock ? html`
       <div class="locked-card">${mine && html`<img src=${mine} alt="Your photo" />`}<b>Locked in ✅</b><span class="small muted">${theirLock ? 'Both photos are in…' : `Waiting for ${partnerName}…`}</span></div>`
       : html`
-      <label class=${'btn game big-cta file-btn' + (busy ? ' disabled' : '')}>${busy ? 'Getting your photo ready…' : 'Open Gallery & Pick Photo 📸'}
-        <input type="file" accept="image/*" onChange=${choose} disabled=${busy} />
+      <label class=${'btn game big-cta file-btn' + (busy ? ' disabled' : '')}>${busy ? 'Getting your photo ready…' : (scav ? 'Take a Photo 📸' : 'Open Gallery & Pick Photo 📸')}
+        <input type="file" accept="image/*" capture=${scav ? 'environment' : undefined} onChange=${choose} disabled=${busy} />
       </label>
-      <p class="small muted center">Pick the photo that matches best. The faster you are, the more points you get.</p>`}`;
+      <p class="small muted center">${scav ? 'Snap it fast. The faster you are, the more points you get.' : 'Pick the photo that matches best. The faster you are, the more points you get.'}</p>`}`;
 
   if (s.ph === 'vote' || s.ph === 'score') {
     const voted = s.votes && uid in s.votes;

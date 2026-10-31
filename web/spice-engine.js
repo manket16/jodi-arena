@@ -2,11 +2,12 @@
 // Same shape as duel-engine.js: pure functions the host phone runs. Photos and video clips never live in the
 // state: photos travel over the live channel, clips go through short-lived storage.
 import { CAMERA, KAUN, MODS, DECOY_BANK } from './spice-content.js';
+import { SCAV } from './ld-content.js';
 
 export const NEW_GAMES = ['camera', 'kaunbola'];
 export const isNew = (g) => NEW_GAMES.includes(g);
 export const CAM_ROUNDS = 3, KAUN_TURNS = 4;
-export const NT = { scramble: 25000, vote: 22000, score: 5200, guess: 20000, hint: 10000, reveal: 7500 };
+export const NT = { scramble: 25000, scav: 45000, vote: 22000, score: 5200, guess: 20000, hint: 10000, reveal: 7500 };
 
 const clone = (s) => JSON.parse(JSON.stringify(s));
 const norm = (t) => String(t || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '');
@@ -37,12 +38,25 @@ export function initNew(s, o) {
   s.mode = o.mode === 'video' ? 'video' : 'couch';
   s.customs = (o.customs || []).map((x) => String(x || '').trim().slice(0, 140)).filter(Boolean).slice(0, 2);
   s.usedIds = (o.used || []).slice(0, 80); s.newIds = [];
-  if (s.game === 'camera') { s.lock = {}; s.votes = {}; }
+  if (s.game === 'camera' || s.game === 'scavenger') { s.lock = {}; s.votes = {}; }
   return s;
 }
 
 export function startNew(s, now) {
   s.rd += 1; s.gain = 0;
+  if (s.game === 'scavenger') {
+    // Photo Hunt: same photo rounds as Camera Roll Roulette, but you snap a fresh photo and get 45 seconds
+    s.lock = {}; s.votes = {}; s.rres = null; s.speed = null;
+    s.used = s.used || {};
+    const seen = [...(s.used.scavenger || []), ...((s.avoid && s.avoid.scavenger) || [])];
+    let pool = [...Array(SCAV.length).keys()].filter((i) => !seen.includes(i));
+    if (!pool.length) pool = [...Array(SCAV.length).keys()].filter((i) => !(s.used.scavenger || []).includes(i));
+    const i = pool[Math.floor(rand(s) * pool.length)];
+    s.used.scavenger = [...(s.used.scavenger || []), i];
+    s.q = SCAV[i];
+    s.ph = 'scramble'; s.dl = now + NT.scav;
+    return s;
+  }
   if (s.game === 'camera') {
     s.lock = {}; s.votes = {}; s.rres = null; s.speed = null;
     const custom = s.rd >= 2 ? s.customs[s.rd - 2] : null; // a partner's secret prompt is slipped into round 2
@@ -100,7 +114,7 @@ function crack(s, now) {
 
 export function actNew(s, by, a, now, me) {
   const isA = me === s.a;
-  if (s.game === 'camera') {
+  if (s.game === 'camera' || s.game === 'scavenger') {
     if (s.ph === 'scramble' && a.t === 'lock' && !(by in s.lock)) {
       s.lock[by] = now;
       return Object.keys(s.lock).length === 2 ? toVote(s, now) : s;
@@ -142,7 +156,7 @@ export function tickNew(s0, now) {
   if (s0.game === 'kaunbola' && s0.ph === 'guess' && !s0.hint && now >= s0.t0 + NT.hint) { const s = clone(s0); s.hint = true; return s; }
   if (!s0.dl || now < s0.dl) return s0;
   const s = clone(s0);
-  if (s.game === 'camera') {
+  if (s.game === 'camera' || s.game === 'scavenger') {
     if (s.ph === 'scramble') return toVote(s, now);
     if (s.ph === 'vote') return resolveVotes(s, now);
     if (s.ph === 'score') {
