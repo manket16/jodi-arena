@@ -373,7 +373,7 @@ export function GiftBox({ home, solo, onInvite }) {
 
       ${canSend ? html`
         <div class="gift-actions">
-          <button class="btn ghost" onClick=${() => setSending(true)}>🎁 Send gift</button>
+          <button class="btn ghost" onClick=${() => setSending(true)}>🎁 Send surprise</button>
           <button class="btn ghost gift-sentbtn" onClick=${openSent}>💌 Sent by you${badge > 0 && html`<span class="gift-badge" aria-label=${badge + ' new'}>${badge}</span>`}</button>
         </div>`
         : solo && html`<button class="btn ghost" onClick=${onInvite}>＋ Invite your partner to send surprises</button>`}
