@@ -10,7 +10,6 @@ const MAKE_REAL = {
 };
 const KIND = { coupon: '🎟️ Coupon', dare: '🎯 Dare', song: '🎵 Song for you', note: '💌 Note', spark: '✨ Little spark', plan: '📅 Plan' };
 const REACTIONS = ['😂', '😍', '🥹', '😈', '🔥', '❤️'];
-const TABS = [['plan', 'Plans'], ['dare', 'Dares']];
 const EMOJI = ['🎁', '💌', '🍗', '😘', '🔥', '🥰'];
 const DARE_POINTS = 50;
 const PROOF_BUCKET = 'proofs';
@@ -160,7 +159,7 @@ function Reveal({ gift, partner, coupleId, onClose, onChanged }) {
 
 function SendSheet({ partner, onClose, onSent }) {
   const [catalog, setCatalog] = useState(null);
-  const [tab, setTab] = useState('plan');
+  const tab = 'dare'; // sending is dares only; plans are no longer sent
   const [sel, setSel] = useState(null);
   const [custom, setCustom] = useState(false);
   const [title, setTitle] = useState('');
@@ -194,8 +193,7 @@ function SendSheet({ partner, onClose, onSent }) {
     : `${partner} sees a wrapped box. They find out what's inside only when they open it.`;
 
   return html`
-    <${Modal} title=${`Surprise ${partner}`} onClose=${onClose}>
-      <div class="tabs" role="tablist">${TABS.map(([k, l]) => html`<button role="tab" aria-selected=${tab === k} class=${tab === k ? 'on' : ''} onClick=${() => { setTab(k); setSel(null); setCustom(false); }}>${l}</button>`)}</div>
+    <${Modal} title=${`Dare ${partner}`} onClose=${onClose}>
       <p class="small muted">${hint}</p>
       ${!isNote && !custom && (catalog === null
         ? html`<p class="muted pulse center">Loading…</p>`
@@ -217,7 +215,7 @@ function SendSheet({ partner, onClose, onSent }) {
           <label class="small muted" for="plan-when">When?</label>
           <input id="plan-when" class="input" type="datetime-local" min=${localInputMin()} value=${when} onInput=${(e) => setWhen(e.target.value)} />
         </div>`}
-      <button class="btn" disabled=${!ready || busy} onClick=${send}>${busy ? 'Wrapping…' : '🎁 Send surprise'}</button>
+      <button class="btn" disabled=${!ready || busy} onClick=${send}>${busy ? 'Sending…' : '🎯 Send dare'}</button>
     </${Modal}>`;
 }
 
@@ -373,7 +371,7 @@ export function GiftBox({ home, solo, onInvite }) {
 
       ${canSend ? html`
         <div class="gift-actions">
-          <button class="btn ghost" onClick=${() => setSending(true)}>🎁 Send surprise</button>
+          <button class="btn ghost" onClick=${() => setSending(true)}>🎯 Send dare</button>
           <button class="btn ghost gift-sentbtn" onClick=${openSent}>💌 Sent by you${badge > 0 && html`<span class="gift-badge" aria-label=${badge + ' new'}>${badge}</span>`}</button>
         </div>`
         : solo && html`<button class="btn ghost" onClick=${onInvite}>＋ Invite your partner to send surprises</button>`}
