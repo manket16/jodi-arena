@@ -22,7 +22,7 @@ async function quickStart() {
 
 function Welcome({ toLogin, toSignup }) {
   return html`
-    <div class="stack-lg center screen" style="padding-top:7vh">
+    <div class="stack-lg center screen" style="min-height:calc(100dvh - 130px);display:flex;flex-direction:column;justify-content:center">
       <img src="/logo.png" alt="Jugalbandi" style="width:min(300px,78vw);height:auto;display:block;margin:0 auto" />
       <div class="stack">
         <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Jugalbandi</h1>
