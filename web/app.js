@@ -2,6 +2,7 @@ import { html, render, useState, useEffect, useCallback } from 'https://esm.sh/h
 import { sb, rpc, toast, fail, setToastFn, usePoll, Mark, share, confetti } from './lib.js';
 import { AdminPanel } from './admin.js';
 import { Hub, MemoriesScreen } from './hub.js';
+import { ScenesScreen } from './scenes.js';
 import { NotesScreen } from './notes.js';
 import { CreateScreen } from './create.js';
 import { DuelLayer, PlayScreen, StakesScreen, SyncScreen } from './duel.js';
@@ -319,6 +320,7 @@ function App() {
     ${sub.k === 'notes' && (solo
       ? html`<${SoloLocked} home=${home} title="Love Notes" line="Notes and letters open up as soon as your partner joins. Until then, try Memories and Create." back=${() => setSub(null)} />`
       : html`<${NotesScreen} home=${home} back=${() => setSub(null)} />`)}
+    ${sub.k === 'scenes' && html`<${ScenesScreen} home=${hv} back=${() => setSub(null)} />`}
     ${sub.k === 'create' && html`<${CreateScreen} home=${hv} back=${() => setSub(null)} />`}`;
   else screen = html`
     ${tab === 'home' && html`${solo ? '' : html`<${PendingStakes} uid=${uid} go=${() => setTab('stakes')} />`}<${Hub} home=${hv} onInvite=${solo ? () => share(inviteMsg(home) + ' ' + inviteLink(home)) : null} open=${(k, o) => setSub({ k, ...(o || {}) })} goPlay=${() => setTab('play')} />`}

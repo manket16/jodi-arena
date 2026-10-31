@@ -117,6 +117,12 @@ export function Hub({ home, open, goPlay, onInvite }) {
 
       <${DailyCard} home=${home} solo=${!!onInvite} onInvite=${onInvite} />
 
+      <button class="nudge-card" onClick=${() => open('scenes')}>
+        <span style="font-size:28px">🎬</span>
+        <span class="grow"><b>Dream Scenes</b><br/><span class="small muted">Turn a photo of you two into a short video: date night, beach, shaadi…</span></span>
+        <span class="chip">New</span>
+      </button>
+
       ${n && n.unread_notes > 0 && html`
         <button class="nudge-card" onClick=${() => open('notes')}>
           <span style="font-size:28px">💌</span>

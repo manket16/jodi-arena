@@ -73,3 +73,13 @@
 .pick-thumb video{width:100%;height:100%;object-fit:cover;border-radius:12px}
 .pick-vid{position:absolute;inset:0;display:grid;place-items:center;font-size:28px;background:#FFE3EC;border-radius:12px}
 .car-vid{object-fit:contain;background:#000}
+
+/* Dream Scenes */
+.scene-pick{display:grid;place-items:center;min-height:200px;border:2px dashed var(--line);border-radius:var(--r-lg);background:#fff center/cover no-repeat;cursor:pointer;font-weight:700;color:var(--rani)}
+.scene-tpls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.scene-tpl{display:flex;flex-direction:column;gap:2px;text-align:left;padding:12px;border:2px solid var(--line);border-radius:var(--r-md);background:#fff;font:inherit;color:var(--ink);cursor:pointer}
+.scene-tpl span{font-size:26px}.scene-tpl i{font-style:normal;font-size:12px;color:var(--muted)}
+.scene-tpl.on{border-color:var(--rani);background:#FFF1F5}
+.scene-card{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--r-lg);background:var(--card);box-shadow:var(--shadow)}
+.scene-vid{width:100%;max-height:60vh;border-radius:var(--r-md);background:#000}
+.scene-wait{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 0;text-align:center}
