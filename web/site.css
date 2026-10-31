@@ -1,11 +1,11 @@
 /* Couple websites: shared base, then one block per template */
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#FFF6F2;--ink:#3B0A2A;--accent:#E11D5A;--soft:#FFE3EC;--card:#fff;--head:'Playfair Display',serif;--body:'Mukta',system-ui,sans-serif}
+:root{--bg:#FFF8F2;--ink:#161B2E;--accent:#E94E3C;--soft:#FFE6DD;--card:#fff;--head:'Playfair Display',serif;--body:'Mukta',system-ui,sans-serif}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 img{max-width:100%;display:block}
 a{color:inherit}
-.loading{min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px;font-family:'Baloo 2',sans-serif;font-size:22px;color:#9F1239;background:#FFF6F2}
+.loading{min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px;font-family:'Baloo 2',sans-serif;font-size:22px;color:#8A2F22;background:#FFF8F2}
 .page{position:relative;z-index:1}
 h1,h2,h3{font-family:var(--head);line-height:1.15}
 h1{font-size:clamp(36px,9vw,72px)}
@@ -102,14 +102,14 @@ h2{font-size:clamp(26px,6vw,40px);margin-bottom:18px;text-align:center}
 .gbox .lock{font-size:48px}
 .gbox h2{font-size:24px;margin:8px 0 18px}
 .gbox input{width:100%;border:2px solid #FBCFE8;border-radius:14px;padding:12px 14px;font:inherit;margin-bottom:12px}
-.gbox button{width:100%;border:0;border-radius:14px;padding:13px;background:#E11D5A;color:#fff;font:700 18px 'Baloo 2',sans-serif}
-.gerr{color:#E11D5A;margin-top:10px;min-height:24px}
+.gbox button{width:100%;border:0;border-radius:14px;padding:13px;background:#E94E3C;color:#fff;font:700 18px 'Baloo 2',sans-serif}
+.gerr{color:#E94E3C;margin-top:10px;min-height:24px}
 
 .foot{text-align:center;padding:24px 16px 40px;font-size:14px;opacity:.7;position:relative;z-index:1}
 .foot a{color:var(--accent);font-weight:700}
 
 /* ---------- classic ---------- */
-.t-classic{--bg:#FFF6F2;--accent:#E11D5A}
+.t-classic{--bg:#FFF8F2;--accent:#E94E3C}
 .t-classic .hero:not(:has(.hbg)){background:radial-gradient(circle at 30% 20%,#FFE3EC,#FFF6F2 60%)}
 
 /* ---------- filmy ---------- */

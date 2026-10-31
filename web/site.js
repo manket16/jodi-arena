@@ -56,7 +56,7 @@ const S = {
     return `<section class="sec dreams reveal"><h2>${e(title)}</h2><ul>${r.map((x) => `<li>${e(x)}</li>`).join('')}</ul></section>`;
   },
   closing: (d) => `<section class="sec closing reveal"><p class="cl">${e(d.closing || `Forever yours, ${d.me}`)}</p></section>`,
-  foot: () => `<footer class="foot">Made with 💞 on <a href="/" target="_blank" rel="noopener">Jodi Arena</a>. Make one for your partner.</footer>`,
+  foot: () => `<footer class="foot">Made with 💞 on <a href="/" target="_blank" rel="noopener">Jugalbandi</a>. Make one for your partner.</footer>`,
 };
 
 const hello = (d) => `${e(d.nickname || d.partner)}`;

@@ -7,7 +7,7 @@
 /* Jodi Report */
 .report {
   border-radius: var(--r-lg); padding: 22px 18px; color: #fff; text-align: center; position: relative; overflow: hidden;
-  background: linear-gradient(160deg, #F0386B 0%, #FF7A59 55%, #FFB627 100%); box-shadow: var(--shadow);
+  background: linear-gradient(160deg, #E94E3C 0%, #FF7A59 55%, #F5A153 100%); box-shadow: var(--shadow);
 }
 .report::after { content: "💞"; position: absolute; right: -10px; top: -20px; font-size: 120px; opacity: .15; transform: rotate(14deg); }
 .report .r-names { font-family: var(--display); font-weight: 800; font-size: 24px; }

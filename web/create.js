@@ -267,7 +267,7 @@ function CardTool({ names, onUsed }) {
       c.width = 1080; c.height = 1350;
       ctx.fillStyle = bg; ctx.fillRect(0, 0, 1080, 1350);
       const img = photos[0] ? await bitmap(photos[0].blob) : null; if (dead) return;
-      const signature = `${names.me} & ${names.partner}  ·  Jodi Arena`;
+      const signature = `${names.me} & ${names.partner}  ·  Jugalbandi`;
       if (layout === 'Full photo') {
         if (img) drawCover(ctx, img, 0, 0, 1080, 1350); else { ctx.font = '320px serif'; ctx.textAlign = 'center'; ctx.fillText(deco, 540, 640); }
         const g = ctx.createLinearGradient(0, 700, 0, 1350); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.78)'); ctx.fillStyle = g; ctx.fillRect(0, 700, 1080, 650);
@@ -303,7 +303,7 @@ function CardTool({ names, onUsed }) {
     return () => { dead = true; };
   }, [photos, frame, head, cap, layout]);
   const gen = async () => { const r = await run(b.text()); if (r) { setHead(r.headline || ''); setCap(r.caption || ''); } };
-  const save = async () => { if (!head.trim()) return fail(new Error('Tap “Write my card” first')); try { await shareFile(await toBlob(cv.current, 'image/png'), 'our-card.png', 'Made with Jodi Arena'); } catch (e) { fail(e); } };
+  const save = async () => { if (!head.trim()) return fail(new Error('Tap “Write my card” first')); try { await shareFile(await toBlob(cv.current, 'image/png'), 'our-card.png', 'Made with Jugalbandi'); } catch (e) { fail(e); } };
   return html`
     <div class="stack">
       <${Brief} fields=${CARD} v=${b.v} set=${setBrief} />
@@ -585,7 +585,7 @@ function VideoTool({ names, onUsed }) {
       ${prog !== null && html`<p class="small muted pulse">Keep this screen open. It records in real time, about ${secs} seconds.</p>`}
       ${out && html`
         <video src=${out.url} controls playsinline class="preview-cv" style="aspect-ratio:9/16;max-height:60vh;background:#000"></video>
-        <button class="btn" onClick=${() => shareFile(out.blob, `our-story.${out.ext}`, 'Our story, made with Jodi Arena')}>Save or share video</button>`}
+        <button class="btn" onClick=${() => shareFile(out.blob, `our-story.${out.ext}`, 'Our story, made with Jugalbandi')}>Save or share video</button>`}
     </div>`;
 }
 
@@ -615,7 +615,7 @@ async function renderVideo({ photos, title, caps, music, names, look = {}, seg =
   const total = INTRO + imgs.length * SEG + OUTRO;
   const grad = (a, b) => { const g = ctx.createLinearGradient(0, 0, W, H); g.addColorStop(0, a); g.addColorStop(1, b); return g; };
   const text = (t, y, size, color, weight = 700) => { ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.font = `${weight} ${size}px Baloo 2, Mukta, sans-serif`; wrap(ctx, t, W / 2, y, W - 120, size * 1.25, 3); };
-  const c1 = hexOr(look.colors && look.colors.from, look.from || '#E11D5A'), c2 = hexOr(look.colors && look.colors.to, look.to || '#F59E0B');
+  const c1 = hexOr(look.colors && look.colors.from, look.from || '#E94E3C'), c2 = hexOr(look.colors && look.colors.to, look.to || '#F59E0B');
   const frame = (t) => {
     ctx.globalAlpha = 1; ctx.fillStyle = '#12061A'; ctx.fillRect(0, 0, W, H);
     if (t < INTRO) {
@@ -639,7 +639,7 @@ async function renderVideo({ photos, title, caps, music, names, look = {}, seg =
     }
     const lo = tt - imgs.length * SEG;
     ctx.fillStyle = grad(c2, c1); ctx.fillRect(0, 0, W, H);
-    ctx.globalAlpha = Math.min(1, lo / 500); text(look.outro || `${names.me} ❤️ ${names.partner}`, H / 2 - 40, 66, '#fff', 800); text('💞', H / 2 + 150, 100, '#fff'); text('Made with Jodi Arena', H - 90, 30, '#ffffffaa', 600); ctx.globalAlpha = 1;
+    ctx.globalAlpha = Math.min(1, lo / 500); text(look.outro || `${names.me} ❤️ ${names.partner}`, H / 2 - 40, 66, '#fff', 800); text('💞', H / 2 + 150, 100, '#fff'); text('Made with Jugalbandi', H - 90, 30, '#ffffffaa', 600); ctx.globalAlpha = 1;
   };
   frame(0);
   const done = new Promise((res) => { rec.onstop = res; });

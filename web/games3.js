@@ -79,7 +79,7 @@ async function reportImage(r) {
   c.width = W; c.height = H;
   const x = c.getContext('2d');
   const g = x.createLinearGradient(0, 0, W, H);
-  g.addColorStop(0, '#F0386B'); g.addColorStop(0.55, '#FF7A59'); g.addColorStop(1, '#FFB627');
+  g.addColorStop(0, '#E94E3C'); g.addColorStop(0.55, '#FF7A59'); g.addColorStop(1, '#F5A153');
   x.fillStyle = g; x.fillRect(0, 0, W, H);
   x.globalAlpha = 0.12; x.font = '420px sans-serif'; x.textAlign = 'left'; x.fillText('💞', 640, 520); x.globalAlpha = 1;
 
@@ -94,8 +94,8 @@ async function reportImage(r) {
   x.fillStyle = 'rgba(255,255,255,.95)';
   roundRect(x, 90, 490, W - 180, 470, 56); x.fill();
   const big = r.sync_pct != null ? `${r.sync_pct}%` : r.kyj_pct != null ? `${r.kyj_pct}%` : '💞';
-  text(big, 230, 760, 800, '#F0386B');
-  text(r.sync_pct != null ? 'in sync' : r.kyj_pct != null ? 'know each other' : 'just getting started', 60, 860, 700, '#23152B');
+  text(big, 230, 760, 800, '#E94E3C');
+  text(r.sync_pct != null ? 'in sync' : r.kyj_pct != null ? 'know each other' : 'just getting started', 60, 860, 700, '#161B2E');
 
   // stat tiles
   const tiles = [
@@ -125,8 +125,8 @@ async function reportImage(r) {
     x.fillText(trim(x, `${d.q} ${d.a} vs ${d.b}`, W - 200), 110, y);
   }
   x.textAlign = 'center';
-  x.font = '700 40px "Mukta", sans-serif'; x.fillStyle = '#23152B';
-  x.fillText('How in sync are you two? Play on Jodi Arena', W / 2, H - 150);
+  x.font = '700 40px "Mukta", sans-serif'; x.fillStyle = '#161B2E';
+  x.fillText('How in sync are you two? Play on Jugalbandi', W / 2, H - 150);
   x.font = '800 48px "Baloo 2", sans-serif'; x.fillText(location.host, W / 2, H - 85);
   return new Promise((res) => c.toBlob(res, 'image/png'));
 }

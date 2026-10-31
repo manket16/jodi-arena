@@ -28,7 +28,7 @@
 .score-pill .mine{color:var(--g,var(--rani));font-weight:700}
 .score-pill .vs{font-size:20px}
 .stake-line{text-align:center;font-size:13px;color:var(--muted);margin-top:-6px}
-.say{background:var(--g-soft,#FFE9EF);border-radius:16px;padding:12px 14px;font-size:16px;line-height:1.4}
+.say{background:var(--g-soft,#FFEAE3);border-radius:16px;padding:12px 14px;font-size:16px;line-height:1.4}
 .say.you{background:var(--g,var(--rani));color:#fff;font-weight:600}
 .qcard{background:var(--card);border-radius:20px;padding:22px 18px;text-align:center;font-family:var(--display);font-size:24px;line-height:1.25;box-shadow:var(--shadow);border:2px solid var(--g-soft,var(--line))}
 .qcard.small-q{font-size:17px;padding:12px}
@@ -46,7 +46,7 @@
 .reveal-card.good{background:#DCFCE7}
 .reveal-card.bad{background:#FEE2E2}
 .dpad{width:100%;aspect-ratio:1/1;background:#fff;border-radius:18px;border:2px solid var(--line);touch-action:none;display:block}
-.dpad.live{border-color:var(--g,var(--rani));box-shadow:0 0 0 4px var(--g-soft,#FFE9EF)}
+.dpad.live{border-color:var(--g,var(--rani));box-shadow:0 0 0 4px var(--g-soft,#FFEAE3)}
 .ink{width:34px;height:34px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px var(--line);cursor:pointer}
 .ink.on{box-shadow:0 0 0 3px var(--ink)}
 .table{background:radial-gradient(circle,#FEF3C7,#FDE68A);border-radius:24px;padding:26px 0 14px;text-align:center}

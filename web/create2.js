@@ -347,7 +347,7 @@ export function CouponsTool({ names, onUsed }) {
     x.fillText(`LOVE COUPON  ·  No. ${String(i + 1).padStart(2, '0')}`, 600, 110);
     x.font = '800 78px Baloo 2, Mukta, sans-serif'; wrap(x, c.title, 600, 230, 1000, 88, 2);
     x.font = 'italic 500 32px Mukta, sans-serif'; x.fillStyle = '#444'; wrap(x, c.fine || '', 600, 400, 960, 40, 2);
-    x.font = '600 28px Mukta, sans-serif'; x.fillStyle = ac; x.fillText(`From ${names.me} to ${names.partner}  ·  Valid forever  ·  Jodi Arena`, 600, 490);
+    x.font = '600 28px Mukta, sans-serif'; x.fillStyle = ac; x.fillText(`From ${names.me} to ${names.partner}  ·  Valid forever  ·  Jugalbandi`, 600, 490);
     return toBlob(cv, 'image/png');
   };
   const save = async (c, i) => { try { await shareFile(await draw(c, i), `love-coupon-${i + 1}.png`, `A love coupon for you: ${c.title}`); } catch (e) { fail(e); } };

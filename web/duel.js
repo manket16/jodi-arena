@@ -148,8 +148,8 @@ function Lobby({ d, uid, me, partner }) {
       ${inviting ? html`
         <div class="panel stack center">
           <p class="pulse"><b>Waiting for ${partner} to join…</b></p>
-          ${!online && html`<p class="small muted">${partner} needs to open Jodi Arena on their phone.</p>
-            <a class="btn" style="text-decoration:none" href=${`https://wa.me/?text=${encodeURIComponent(`${me} wants to play ${g.name} with you on Jodi Arena 🎮 Open it now: ${link}`)}`} target="_blank" rel="noopener">Call them on WhatsApp</a>`}
+          ${!online && html`<p class="small muted">${partner} needs to open Jugalbandi on their phone.</p>
+            <a class="btn" style="text-decoration:none" href=${`https://wa.me/?text=${encodeURIComponent(`${me} wants to play ${g.name} with you on Jugalbandi 🎮 Open it now: ${link}`)}`} target="_blank" rel="noopener">Call them on WhatsApp</a>`}
           <button class="link" onClick=${() => { send({ t: 'cancel', id: d.id }); setInviting(false); }}>Cancel</button>
         </div>` : html`
         ${declined && html`<p class="small center muted">${partner} said not now. Try again in a bit.</p>`}

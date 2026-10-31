@@ -362,7 +362,7 @@ export function GiftBox({ home, solo, onInvite }) {
       ${waiting === 0 && box.free_available && html`
         <button class="gift-card free" disabled=${busy} onClick=${openFree}>
           <span class="gift-big shake">✨</span>
-          <span class="grow"><b>A free surprise is waiting</b><br/><span class="small">From Jodi Arena, once a day. Tap to open.</span></span>
+          <span class="grow"><b>A free surprise is waiting</b><br/><span class="small">From Jugalbandi, once a day. Tap to open.</span></span>
         </button>`}
 
       ${waiting === 0 && !box.free_available && reviews.length === 0 && planNews.length === 0 && html`

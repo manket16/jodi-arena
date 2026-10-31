@@ -1,9 +1,9 @@
 /* Daily question card on Home */
 .dq-card{display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:var(--r-lg);background:var(--card);border:2px solid var(--rani);box-shadow:var(--shadow)}
 .dq-card.match{background:linear-gradient(160deg,#FFF1F5,#FFF7E0);border-color:#F59E0B}
-.dq-card.clash{background:linear-gradient(160deg,#F4EDFF,#FFE9F2);border-color:#7C3AED}
+.dq-card.clash{background:linear-gradient(160deg,#EEF0F4,#FFE9E2);border-color:var(--ink)}
 .dq-tag{font-size:13px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--rani)}
-.dq-card.clash .dq-tag{color:#7C3AED}
+.dq-card.clash .dq-tag{color:var(--ink)}
 .dq-q{font-size:24px;line-height:1.2;margin:0}
 .dq-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .dq-opt{border:2px solid var(--line);background:#fff;color:var(--ink);border-radius:var(--r-md);padding:16px 10px;min-height:64px;font:inherit;font-weight:700;font-size:17px;cursor:pointer}
@@ -19,7 +19,7 @@
 
 /* Surprise gift box */
 .gift-wrap{display:flex;flex-direction:column;gap:12px}
-.gift-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:18px;border:0;border-radius:var(--r-lg);font:inherit;color:#fff;box-shadow:var(--shadow);cursor:pointer;background:linear-gradient(135deg,#7C3AED,#DB2777 60%,#F59E0B)}
+.gift-card{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:18px;border:0;border-radius:var(--r-lg);font:inherit;color:#fff;box-shadow:var(--shadow);cursor:pointer;background:linear-gradient(135deg,#E94E3C,#F5A153)}
 .gift-card.free{background:linear-gradient(135deg,#0E8F6E,#0891B2)}
 .gift-card.idle{background:var(--card);color:var(--ink);cursor:default;border:2px dashed var(--line);box-shadow:none}
 .gift-card:disabled{opacity:.7}
@@ -37,7 +37,7 @@
 .gift-title{font-size:24px;line-height:1.2;margin:0}
 .gift-react{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
 .gift-react button,.gift-emojis button{font-size:26px;width:52px;height:52px;border-radius:50%;border:2px solid var(--line);background:#fff;cursor:pointer}
-.gift-react button.on,.gift-emojis button.on{border-color:var(--rani);background:#FFE0EA}
+.gift-react button.on,.gift-emojis button.on{border-color:var(--rani);background:#FFE1D6}
 .gift-emojis{display:flex;gap:8px;flex-wrap:wrap}
 .gift-list{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow:auto}
 .gift-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 12px;border:2px solid var(--line);border-radius:var(--r-md);background:#fff;font:inherit;color:var(--ink);cursor:pointer}
@@ -57,7 +57,7 @@
 /* Send / Sent buttons under the gift box */
 .gift-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .gift-sentbtn{position:relative;overflow:visible}
-.gift-badge{position:absolute;top:-9px;right:-4px;min-width:26px;height:26px;padding:0 7px;border-radius:99px;background:#F0386B;color:#fff;font-size:14px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.gift-badge{position:absolute;top:-9px;right:-4px;min-width:26px;height:26px;padding:0 7px;border-radius:99px;background:#E94E3C;color:#fff;font-size:14px;font-weight:700;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)}
 .gift-fresh{background:#FFF1F5;border-radius:var(--r-md);padding-left:8px;padding-right:8px}
 
 /* Plans, dare proof and review */

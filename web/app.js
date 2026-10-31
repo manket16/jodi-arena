@@ -25,7 +25,7 @@ function Welcome({ toLogin, toSignup }) {
     <div class="stack-lg center screen" style="padding-top:7vh">
       <${Mark} a="J" b="A" big />
       <div class="stack">
-        <h1>Jodi Arena</h1>
+        <h1>Jugalbandi</h1>
         <p style="font-weight:700;color:var(--rani);letter-spacing:.3px;margin:0">Bringing couples closer</p>
         <p class="muted">Couple games for two. Find out how in sync you are, then take on other jodis.</p>
       </div>
@@ -65,7 +65,7 @@ function InviteJoin({ code, session, onDone, toLogin }) {
     } catch (err) { fail(err); setBusy(false); }
   };
 
-  if (info === undefined) return html`<div class="boot pulse">Jodi Arena</div>`;
+  if (info === undefined) return html`<div class="boot pulse">Jugalbandi</div>`;
   if (!info || !info.open) return html`
     <div class="stack-lg center screen" style="padding-top:10vh">
       <h1>${info ? 'This jodi is already complete' : 'Invite link not found'}</h1>
@@ -133,7 +133,7 @@ function SignIn({ signup }) {
     <div class="stack-lg" style="padding-top:6vh">
       <div class="center stack">
         <${Mark} a="J" b="A" big />
-        <h1>Jodi Arena</h1>
+        <h1>Jugalbandi</h1>
         <p style="font-weight:700;color:var(--rani);letter-spacing:.3px;margin:0">Bringing couples closer</p>
         <p class="muted">${isNew ? 'Create your account.' : 'Log in to your jodi.'}</p>
       </div>
@@ -208,7 +208,7 @@ function Onboard({ onDone, defaultName }) {
 }
 
 // ---------- solo mode: the couple exists but the partner has not joined yet ----------
-const inviteMsg = (home) => `${home.profile.name} invited you to be their jodi on Jodi Arena 💞 Tap to join:`;
+const inviteMsg = (home) => `${home.profile.name} invited you to be their jodi on Jugalbandi 💞 Tap to join:`;
 const inviteLink = (home) => `${location.origin}/?join=${home.couple.code}`;
 
 function InvitePanel({ home }) {
@@ -307,7 +307,7 @@ function App() {
   useEffect(() => { if (live) connect(home.couple.id, uid, home.profile.name); }, [live && home.couple.id, uid]);
 
   let screen;
-  if (session === undefined || (session && !home)) screen = html`<div class="boot pulse">Jodi Arena</div>`;
+  if (session === undefined || (session && !home)) screen = html`<div class="boot pulse">Jugalbandi</div>`;
   else if (isAdminPage && !session) screen = html`<${SignIn} />`;
   else if (isAdminPage) screen = html`<${AdminPanel} />`;
   else if (!session && login) screen = html`<${SignIn} signup=${login === 'signup'} /><p class="center" style="margin-top:16px"><button class="link" onClick=${() => setLogin(false)}>Back</button></p>`;
