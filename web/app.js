@@ -23,9 +23,9 @@ async function quickStart() {
 function Welcome({ toLogin, toSignup }) {
   return html`
     <div class="stack-lg center screen" style="padding-top:7vh">
-      <${Mark} a="J" b="A" big />
+      <img src="/logo.png" alt="Jugalbandi" style="width:min(300px,78vw);height:auto;display:block;margin:0 auto" />
       <div class="stack">
-        <h1>Jugalbandi</h1>
+        <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Jugalbandi</h1>
         <p style="font-weight:700;color:var(--rani);letter-spacing:.3px;margin:0">Bringing couples closer</p>
         <p class="muted">Couple games for two. Find out how in sync you are, then take on other jodis.</p>
       </div>
@@ -132,8 +132,8 @@ function SignIn({ signup }) {
   return html`
     <div class="stack-lg" style="padding-top:6vh">
       <div class="center stack">
-        <${Mark} a="J" b="A" big />
-        <h1>Jugalbandi</h1>
+        <img src="/logo.png" alt="Jugalbandi" style="width:min(300px,78vw);height:auto;display:block;margin:0 auto" />
+        <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Jugalbandi</h1>
         <p style="font-weight:700;color:var(--rani);letter-spacing:.3px;margin:0">Bringing couples closer</p>
         <p class="muted">${isNew ? 'Create your account.' : 'Log in to your jodi.'}</p>
       </div>
