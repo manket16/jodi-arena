@@ -95,7 +95,7 @@
 .duel-card:active{transform:scale(.97)}
 .duel-card.locked{filter:grayscale(.7);opacity:.75}
 .duel-card .dlock{position:absolute;top:8px;right:10px}
-.iou{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
+.iou{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px}
 .iou .grow{display:flex;flex-direction:column}
 .iou.owe{border-color:#FB923C;background:#FFF7ED}
 .iou.due{border-color:#34D399;background:#ECFDF5}

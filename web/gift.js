@@ -34,7 +34,7 @@ async function compressImg(file, max = 1400, q = 0.82) {
 }
 
 // Upload a photo (compressed) or a short video into the private proofs bucket.
-async function uploadProof(coupleId, file) {
+export async function uploadProof(coupleId, file) {
   const isVideo = (file.type || '').startsWith('video/');
   let blob = file, ext = 'jpg', type = 'image/jpeg';
   if (isVideo) {
@@ -49,7 +49,7 @@ async function uploadProof(coupleId, file) {
   return { path, kind: isVideo ? 'video' : 'image' };
 }
 
-function ProofMedia({ path, kind }) {
+export function ProofMedia({ path, kind }) {
   const [url, setUrl] = useState(null);
   useEffect(() => {
     let live = true;

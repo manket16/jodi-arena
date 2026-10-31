@@ -8,6 +8,7 @@ import { META, SYNC_HOW, create, act, tick, role, TIMES } from './duel-engine.js
 import { STAKES } from './duel-content.js';
 import { STAKES_BY_LEVEL } from './spice-content.js';
 import { Sheet } from './hub.js';
+import { uploadProof, ProofMedia } from './gift.js';
 import { StageCard } from './stages.js';
 import { isNew } from './spice-engine.js';
 import { PreGame, CameraRoll, KaunBola, UnlockModal, loadProgress, getProgress, usedPrompts, checkUnlock } from './spice-ui.js';
@@ -306,7 +307,7 @@ function StakeSpin({ s, uid, doAct, d, partnerName }) {
       <h3>${s.spin ? 'The deal' : 'Loser has to…'}</h3>
       <${Wheel} items=${list} spin=${rot} />
       ${shown
-        ? html`<p class="stake-result">${shown}</p><p class="small muted">${loserName === 'You' ? 'You have' : `${loserName} has`} to do this. Saved in the Stakes tab.</p>`
+        ? html`<p class="stake-result">${shown}</p><p class="small muted">${loserName === 'You' ? 'You have' : `${loserName} has`} to do this. Do it, then attach a photo or video in the Stakes tab.</p>`
         : s.spin ? html`<p class="pulse muted small">Spinning…</p>`
         : iWon ? html`
             <p class="muted small">You won! Spin to decide what ${partnerName} has to do.</p>
@@ -554,9 +555,37 @@ export function PlayScreen({ home, toStakes, toMe }) {
     </div>`;
 }
 
+// the loser attaches a photo or short video as proof of a stake
+function StakeProofSheet({ x, coupleId, partner, onClose, onDone }) {
+  const [file, setFile] = useState(null);
+  const [note, setNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const sendProof = async () => {
+    if (!file) return;
+    setBusy(true);
+    try {
+      const up = await uploadProof(coupleId, file);
+      await rpc('duel_submit_proof', { p_id: x.id, p_path: up.path, p_kind: up.kind, p_note: note });
+      buzz(); toast(`Proof sent to ${partner} 💝`); onDone();
+    } catch (e) { fail(e); setBusy(false); }
+  };
+  return html`
+    <${Sheet} title="Show you did it" onClose=${onClose}>
+      <div class="stack">
+        <b>${x.stake}</b>
+        <input class="input" type="file" accept="image/*,video/*" onChange=${(e) => setFile(e.target.files[0] || null)} />
+        <p class="small muted">A photo or a short video, up to about 20 seconds. ${partner} sees it and taps “Got it”.</p>
+        <input class="input" maxlength="120" placeholder="Add a note (optional)" value=${note} onInput=${(e) => setNote(e.target.value)} />
+        <button class="btn" disabled=${!file || busy} onClick=${sendProof}>${busy ? 'Uploading…' : `Send to ${partner}`}</button>
+      </div>
+    </${Sheet}>`;
+}
+
 // ---------- the Stakes tab (IOU wallet) ----------
 export function StakesScreen({ home, uid }) {
   const [b, setB] = useState(null);
+  const [proofFor, setProofFor] = useState(null); // a stake the loser is attaching proof to
+  const [viewing, setViewing] = useState(null);   // id of a stake whose proof the winner is looking at
   const partner = home.couple.partner_name;
   const load = () => rpc('duel_board').then(setB).catch(fail);
   useEffect(() => { load(); }, []);
@@ -570,7 +599,12 @@ export function StakesScreen({ home, uid }) {
     <div class="iou ${mine ? 'owe' : 'due'}">
       <span class="iou-emo">${META[x.game] ? META[x.game].emo : '🎮'}</span>
       <span class="grow"><b>${x.stake}</b><span class="small muted">${META[x.game] ? META[x.game].name : ''} · ${ago(x.created_at)}</span></span>
+      ${mine && (x.proof_path
+        ? html`<span class="small muted">Proof sent ✓</span><button class="chip" onClick=${() => setProofFor(x)}>Replace</button>`
+        : html`<button class="chip" onClick=${() => setProofFor(x)}>Done it 📸</button>`)}
+      ${!mine && x.proof_path && html`<button class="chip" onClick=${() => setViewing(viewing === x.id ? null : x.id)}>${viewing === x.id ? 'Hide' : 'See proof'}</button>`}
       ${!mine && html`<button class="chip" onClick=${() => paid(x.id, true)}>Got it ✓</button>`}
+      ${!mine && viewing === x.id && x.proof_path && html`<div class="stack" style="flex-basis:100%;width:100%"><${ProofMedia} path=${x.proof_path} kind=${x.proof_kind} />${x.proof_note && html`<p class="small muted">${x.proof_note}</p>`}</div>`}
     </div>`;
   return html`
     <div class="stack-lg screen">
@@ -581,6 +615,7 @@ export function StakesScreen({ home, uid }) {
       <h3>You owe ${partner} (${iOwe.length})</h3>
       ${iOwe.length ? html`<div class="stack">${iOwe.map((x) => html`<${Row} x=${x} mine />`)}</div>` : html`<p class="small muted">You’re all clear 😇</p>`}
       ${done.length > 0 && html`<h3>Paid up</h3><div class="stack">${done.map((x) => html`<div class="iou done"><span class="iou-emo">✅</span><span class="grow"><b>${x.stake}</b><span class="small muted">${x.loser === uid ? 'You paid' : `${partner} paid`}</span></span></div>`)}</div>`}
+      ${proofFor && html`<${StakeProofSheet} x=${proofFor} coupleId=${home.couple.id} partner=${partner} onClose=${() => setProofFor(null)} onDone=${() => { setProofFor(null); load(); }} />`}
       <h3>Head to head</h3>
       <div class="stack">${Object.entries(META).map(([k, g]) => { const r = b.by_game[k] || { me: 0, partner: 0 }; return html`<div class="h2h"><span>${g.emo} ${g.name}</span><span><b>${r.me}</b> – <b>${r.partner}</b></span></div>`; })}</div>
     </div>`;
