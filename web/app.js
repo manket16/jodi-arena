@@ -283,11 +283,6 @@ function App() {
   const [session, setSession] = useState(undefined);
   const [home, setHome] = useState(null);
   const [tab, setTab] = useState(new URLSearchParams(location.search).has('play') ? 'play' : 'home');
-  const [owe, setOwe] = useState(0);
-  useEffect(() => {
-    if (solo) return;
-    rpc('duel_board').then((b) => setOwe(b.recent.filter((x) => x.stake && x.loser && !x.paid_at).length)).catch(() => {});
-  }, [tab, solo]);
   const [sub, setSub] = useState(null);
   const [t, setT] = useState(null);
   const [login, setLogin] = useState(false);
@@ -307,6 +302,11 @@ function App() {
   const uid = session && session.user.id;
   const live = !!(home && home.couple && home.couple.complete && uid);
   const solo = !!(home && home.couple && !home.couple.complete);
+  const [owe, setOwe] = useState(0);
+  useEffect(() => {
+    if (solo) return;
+    rpc('duel_board').then((b) => setOwe(b.recent.filter((x) => x.stake && x.loser && !x.paid_at).length)).catch(() => {});
+  }, [tab, solo]);
   usePoll(reload, 5000, solo);
   const hv = solo ? { ...home, couple: { ...home.couple, partner_name: 'your partner' } } : home;
   useEffect(() => { if (live) connect(home.couple.id, uid, home.profile.name); }, [live && home.couple.id, uid]);
