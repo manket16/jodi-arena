@@ -22,7 +22,7 @@ function RecordSheet({ modes, onFile, onClose }) {
     let dead = false;
     stopStream(); setErr('');
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { setErr('This browser cannot open the camera or mic here.'); return; }
-    const want = mode === 'voice' ? { audio: true } : { video: { facingMode: facing }, audio: mode === 'video' };
+    const want = mode === 'voice' ? { audio: true } : { video: { facingMode: facing, ...(mode === 'video' ? { width: { ideal: 640 }, height: { ideal: 480 } } : {}) }, audio: mode === 'video' };
     navigator.mediaDevices.getUserMedia(want).then((s) => {
       if (dead) { s.getTracks().forEach((t) => t.stop()); return; }
       stream.current = s;
@@ -44,7 +44,7 @@ function RecordSheet({ modes, onFile, onClose }) {
     if (!stream.current) return;
     const mime = pickMime(mode === 'voice' ? AUDIO_MIME : VIDEO_MIME);
     let mr;
-    try { mr = new MediaRecorder(stream.current, mime ? { mimeType: mime, ...(mode === 'video' ? { videoBitsPerSecond: 1500000 } : {}) } : undefined); } catch (e) { return fail(new Error('This phone cannot record here.')); }
+    try { mr = new MediaRecorder(stream.current, mime ? { mimeType: mime, ...(mode === 'video' ? { videoBitsPerSecond: 800000 } : {}) } : undefined); } catch (e) { return fail(new Error('This phone cannot record here.')); }
     const chunks = [];
     mr.ondataavailable = (e) => e.data.size && chunks.push(e.data);
     mr.onstop = () => {

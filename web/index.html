@@ -27,5 +27,6 @@
 <body>
   <div id="app"><div class="boot">Jugalbandi</div></div>
   <script type="module" src="/app.js?v=14"></script>
+  <script>if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () {}); });</script>
 </body>
 </html>

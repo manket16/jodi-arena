@@ -1,4 +1,4 @@
-import { html, render, useState, useEffect, useCallback } from 'https://esm.sh/htm@3.1.1/preact/standalone';
+import { html, render, useState, useEffect, useCallback, useRef } from 'https://esm.sh/htm@3.1.1/preact/standalone';
 import { sb, rpc, toast, fail, setToastFn, usePoll, Mark, share, confetti } from './lib.js';
 import { AdminPanel } from './admin.js';
 import { Hub, MemoriesScreen } from './hub.js';
@@ -280,6 +280,7 @@ function MeScreen({ home, guest, reload }) {
 
 // ---------- app ----------
 function App() {
+  const uidRef = useRef(null);
   const [session, setSession] = useState(undefined);
   const [home, setHome] = useState(null);
   const [tab, setTab] = useState(new URLSearchParams(location.search).has('play') ? 'play' : 'home');
@@ -293,12 +294,22 @@ function App() {
     let tid;
     setToastFn((msg, err) => { setT({ msg, err }); clearTimeout(tid); tid = setTimeout(() => setT(null), 3500); });
     sb.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data } = sb.auth.onAuthStateChange((_e, s) => { setSession(s); if (!s) { setHome(null); setSub(null); disconnect(); } });
+    const { data } = sb.auth.onAuthStateChange((_e, s) => { setSession(s); if (!s) { setHome(null); setSub(null); disconnect(); try { if (uidRef.current) localStorage.removeItem('jb-home-' + uidRef.current); } catch (_) { /* ignore */ } uidRef.current = null; } });
     return () => data.subscription.unsubscribe();
   }, []);
 
-  const reload = useCallback(() => rpc('get_home').then(setHome).catch(fail), []);
-  useEffect(() => { if (session) reload(); }, [session && session.user.id]);
+  // Show the last saved Home straight away (this phone's copy), then refresh it from the server.
+  const homeKey = (id) => 'jb-home-' + id;
+  const reload = useCallback(() => rpc('get_home').then((h) => {
+    setHome(h);
+    try { const u = uidRef.current; if (u && h) localStorage.setItem(homeKey(u), JSON.stringify(h)); } catch (_) { /* storage can be blocked */ }
+  }).catch((e) => { if (navigator.onLine === false) return; fail(e); }), []);
+  useEffect(() => {
+    if (!session) return;
+    uidRef.current = session.user.id;
+    try { const c = localStorage.getItem(homeKey(session.user.id)); if (c) setHome((cur) => cur || JSON.parse(c)); } catch (_) { /* ignore */ }
+    reload();
+  }, [session && session.user.id]);
   const uid = session && session.user.id;
   const live = !!(home && home.couple && home.couple.complete && uid);
   const solo = !!(home && home.couple && !home.couple.complete);
