@@ -249,6 +249,7 @@ function SentRow({ g, isNew, partner, onChanged }) {
   const [redo, setRedo] = useState(false);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
   const review = g.kind === 'dare' && g.status === 'proof_sent';
   const approve = async () => {
     setBusy(true);
@@ -260,11 +261,20 @@ function SentRow({ g, isNew, partner, onChanged }) {
   };
   return html`
     <div class=${'gift-sent' + (isNew || review ? ' gift-fresh' : '')}>
-      <div class="gw-row">
+      <div class="gw-row" style="cursor:pointer" onClick=${() => setOpen(!open)}>
         <span class="gift-item-emo">${g.emoji}</span>
         <span class="grow"><b>${g.title}</b><br/><span class="small muted">${sentStatus(g, partner)}</span></span>
-        ${(isNew || review) && html`<span class="chip">${review ? 'Review' : 'New'}</span>`}
+        ${(isNew || review) ? html`<span class="chip">${review ? 'Review' : 'New'}</span>` : html`<span class="small muted">${open ? '▲' : '▼'}</span>`}
       </div>
+      ${open && !review && html`
+        <div class="stack" style="margin-top:8px">
+          ${g.body && html`<p class="small">${g.body}</p>`}
+          <p class="small muted">Sent ${fmtWhen(g.created_at)}${g.opened_at ? ` · opened ${fmtWhen(g.opened_at)}` : ''}</p>
+          ${g.kind === 'dare' && g.redo_note && html`<p class="small gift-redo">You asked them to retry: ${g.redo_note}</p>`}
+          ${g.proof_path && html`<${ProofMedia} path=${g.proof_path} kind=${g.proof_kind} />`}
+          ${g.proof_note && html`<p class="small">“${g.proof_note}”</p>`}
+          ${g.reaction && html`<p class="small">${partner} reacted ${g.reaction}</p>`}
+        </div>`}
       ${g.kind === 'dare' && g.status === 'redo' && g.redo_note && html`<p class="small gift-redo">You said: ${g.redo_note}</p>`}
       ${g.kind === 'plan' && g.plan_reply === 'in' && html`<a class="chip" style="text-decoration:none" href=${calUrl(g.title, g.plan_at)} target="_blank" rel="noopener noreferrer">📅 Add to calendar</a>`}
       ${review && html`
