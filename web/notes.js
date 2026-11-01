@@ -1,6 +1,7 @@
 import { html, useState, useEffect, useRef } from 'https://esm.sh/htm@3.1.1/preact/standalone';
 import { sb, rpc, toast, fail, usePoll, confetti } from './lib.js';
-import { Sheet, ScreenBar, Tabs, fmtDate, signed, uploadPhoto, BUCKET } from './hub.js';
+import { Sheet, ScreenBar, Tabs, fmtDate, signed, uploadPhoto, uploadMedia, isAud, BUCKET } from './hub.js';
+import { Capture } from './recorder.js';
 import { callAI } from './ai.js';
 
 const QUICK = [['🥰', 'Thinking of you'], ['😘', 'Miss you'], ['🤗', 'Need a hug'], ['☕', 'Chai later?'], ['🌙', 'Sleep well, jaan'], ['💪', 'You got this']];
@@ -13,7 +14,7 @@ const ago = (s) => {
   return fmtDate(s);
 };
 const fmtWhen = (s) => new Date(s).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
-const pic = (n) => (n.photos && n.photos.length ? ` 📷 ${n.photos.length}` : '');
+const pic = (n) => (n.photos && n.photos.length ? ` 📎 ${n.photos.length}` : '');
 
 // the photos that came with a note or letter, shown as a swipeable strip
 function NotePhotos({ paths }) {
@@ -21,7 +22,7 @@ function NotePhotos({ paths }) {
   const key = (paths || []).join('|');
   useEffect(() => { if (paths && paths.length) signed(paths).then(setUrls).catch(fail); }, [key]);
   if (!paths || !paths.length) return null;
-  return html`<div class="carousel">${paths.map((p) => html`<div class="car-img" style=${urls[p] ? `background-image:url("${urls[p]}")` : ''}></div>`)}</div>`;
+  return html`<div class="carousel">${paths.map((p) => isAud(p) ? html`<audio class="car-aud" src=${urls[p] || ''} controls preload="metadata"></audio>` : html`<div class="car-img" style=${urls[p] ? `background-image:url("${urls[p]}")` : ''}></div>`)}</div>`;
 }
 
 export function NotesScreen({ home, back }) {
@@ -189,7 +190,7 @@ function Composer({ kind, schedule, me, partner, coupleId, onClose, onSent }) {
   const prev = (f) => { if (!previews.current.has(f)) previews.current.set(f, URL.createObjectURL(f)); return previews.current.get(f); };
   useEffect(() => () => previews.current.forEach((u) => URL.revokeObjectURL(u)), []);
   const addFiles = (e) => {
-    const picked = [...e.target.files].filter((f) => f.type.startsWith('image/'));
+    const picked = [...e.target.files].filter((f) => f.type.startsWith('image/') || f.type.startsWith('audio/'));
     setFiles((cur) => [...cur, ...picked].slice(0, 3));
     e.target.value = '';
   };
@@ -211,8 +212,8 @@ function Composer({ kind, schedule, me, partner, coupleId, onClose, onSent }) {
     const paths = [];
     try {
       for (let i = 0; i < files.length; i++) {
-        setProg(`Uploading photo ${i + 1} of ${files.length}…`);
-        paths.push(await uploadPhoto(coupleId, files[i]));
+        setProg(`Uploading ${i + 1} of ${files.length}…`);
+        paths.push(await uploadMedia(coupleId, files[i]));
       }
       setProg('');
       await rpc('send_note_v2', {
@@ -243,9 +244,10 @@ function Composer({ kind, schedule, me, partner, coupleId, onClose, onSent }) {
         <button type="button" class="btn ghost" disabled=${ai} onClick=${help}>${ai ? 'Writing…' : '✍️ Help me write'}</button>
         ${canPhoto && html`
           <div class="pick-row">
-            ${files.map((f, i) => html`<div class="pick-thumb" style=${`background-image:url("${prev(f)}")`}><button type="button" aria-label="Remove photo" onClick=${() => setFiles(files.filter((_, j) => j !== i))}>✕</button></div>`)}
-            ${files.length < 3 && html`<label class="pick-add">📷<span class="small">Add photo</span><input type="file" accept="image/*" multiple hidden onChange=${addFiles} /></label>`}
-          </div>`}
+            ${files.map((f, i) => html`<div class="pick-thumb" style=${f.type.startsWith('audio/') ? '' : `background-image:url("${prev(f)}")`}>${f.type.startsWith('audio/') && html`<span class="pick-vid">🎙️</span>`}<button type="button" aria-label="Remove photo" onClick=${() => setFiles(files.filter((_, j) => j !== i))}>✕</button></div>`)}
+            ${files.length < 3 && html`<label class="pick-add">📁<span class="small">Gallery</span><input type="file" accept="image/*,audio/*" multiple hidden onChange=${addFiles} /></label>`}
+          </div>
+          ${files.length < 3 && html`<${Capture} modes=${['photo', 'voice']} accept="image/*,audio/*" onFile=${(f) => setFiles((cur) => [...cur, f].slice(0, 3))} label="Gallery" />`}`}
         ${schedule && html`<label class="field"><span>Deliver at</span><input class="input" type="datetime-local" required min=${minDt} value=${when} onInput=${(e) => setWhen(e.target.value)} /></label>`}
         <button class="btn" disabled=${busy || !body.trim()}>${busy ? (prog || 'Sending…') : schedule ? 'Schedule' : 'Send 💌'}</button>
       </form>

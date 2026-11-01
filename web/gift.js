@@ -1,5 +1,6 @@
 import { html, useState, useEffect } from 'https://esm.sh/htm@3.1.1/preact/standalone';
 import { sb, rpc, fail, toast, usePoll, confetti, buzz } from './lib.js';
+import { Capture, Chosen } from './recorder.js';
 
 // "Make it real" shortcuts. Plain links for now; swap in affiliate links here later.
 const MAKE_REAL = {
@@ -36,8 +37,13 @@ async function compressImg(file, max = 1400, q = 0.82) {
 // Upload a photo (compressed) or a short video into the private proofs bucket.
 export async function uploadProof(coupleId, file) {
   const isVideo = (file.type || '').startsWith('video/');
+  const isAudio = (file.type || '').startsWith('audio/');
   let blob = file, ext = 'jpg', type = 'image/jpeg';
-  if (isVideo) {
+  if (isAudio) {
+    type = (file.type || 'audio/mp4').split(';')[0];
+    ext = type.includes('mp4') || type.includes('m4a') || type.includes('aac') ? 'm4a' : type.includes('ogg') ? 'ogg' : type.includes('mpeg') ? 'mp3' : 'weba';
+    blob = new Blob([file], { type });
+  } else if (isVideo) {
     if (file.size > 40 * 1024 * 1024) throw new Error('That video is too big. Keep it to about 20 seconds.');
     type = file.type; ext = type.includes('quicktime') ? 'mov' : type.includes('webm') ? 'webm' : 'mp4';
   } else {
@@ -46,7 +52,7 @@ export async function uploadProof(coupleId, file) {
   const path = `${coupleId}/${crypto.randomUUID()}.${ext}`;
   const { error } = await sb.storage.from(PROOF_BUCKET).upload(path, blob, { contentType: type });
   if (error) throw error;
-  return { path, kind: isVideo ? 'video' : 'image' };
+  return { path, kind: isAudio ? 'audio' : isVideo ? 'video' : 'image' };
 }
 
 export function ProofMedia({ path, kind }) {
@@ -57,6 +63,7 @@ export function ProofMedia({ path, kind }) {
     return () => { live = false; };
   }, [path]);
   if (!url) return html`<p class="muted pulse center small">Loading proof…</p>`;
+  if (kind === 'audio') return html`<audio src=${url} controls style="width:100%"></audio>`;
   return kind === 'video'
     ? html`<video class="gift-proof" src=${url} controls playsinline preload="metadata"></video>`
     : html`<img class="gift-proof" src=${url} alt="Proof" />`;
@@ -92,8 +99,8 @@ function ProofSheet({ gift, coupleId, partner, onClose, onDone }) {
         <b>${gift.emoji} ${gift.title}</b>
         <p class="small muted">${gift.body}</p>
         ${gift.redo_note && html`<p class="gift-redo">${partner} says: ${gift.redo_note}</p>`}
-        <input class="input" type="file" accept="image/*,video/*" onChange=${(e) => setFile(e.target.files[0] || null)} />
-        <p class="small muted">A photo or a short video, up to about 20 seconds.</p>
+        ${file ? html`<${Chosen} file=${file} onClear=${() => setFile(null)} />` : html`<${Capture} accept="image/*,video/*,audio/*" onFile=${setFile} label="Gallery" />`}
+        <p class="small muted">Record right here, or pick from your gallery. A photo, a video up to 20 seconds, or a voice note.</p>
         <input class="input" maxlength="120" placeholder="Add a note (optional)" value=${note} onInput=${(e) => setNote(e.target.value)} />
       </div>
       <button class="btn" disabled=${!file || busy} onClick=${send}>${busy ? 'Uploading…' : `Send to ${partner}`}</button>

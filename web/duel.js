@@ -9,6 +9,7 @@ import { STAKES } from './duel-content.js';
 import { STAKES_BY_LEVEL } from './spice-content.js';
 import { Sheet } from './hub.js';
 import { uploadProof, ProofMedia } from './gift.js';
+import { Capture, Chosen } from './recorder.js';
 import { Quiz, Listen } from './ld-ui.js';
 import { StageCard } from './stages.js';
 import { isNew } from './spice-engine.js';
@@ -574,8 +575,8 @@ function StakeProofSheet({ x, coupleId, partner, onClose, onDone }) {
     <${Sheet} title="Show you did it" onClose=${onClose}>
       <div class="stack">
         <b>${x.stake}</b>
-        <input class="input" type="file" accept="image/*,video/*" onChange=${(e) => setFile(e.target.files[0] || null)} />
-        <p class="small muted">A photo or a short video, up to about 20 seconds. ${partner} sees it and taps “Got it”.</p>
+        ${file ? html`<${Chosen} file=${file} onClear=${() => setFile(null)} />` : html`<${Capture} accept="image/*,video/*,audio/*" onFile=${setFile} label="Gallery" />`}
+        <p class="small muted">Record right here, or pick from your gallery. A photo, a short video or a voice note. ${partner} sees it and taps “Got it”.</p>
         <input class="input" maxlength="120" placeholder="Add a note (optional)" value=${note} onInput=${(e) => setNote(e.target.value)} />
         <button class="btn" disabled=${!file || busy} onClick=${sendProof}>${busy ? 'Uploading…' : `Send to ${partner}`}</button>
       </div>
