@@ -1,5 +1,5 @@
 import { html, useState, useEffect } from 'https://esm.sh/htm@3.1.1/preact/standalone';
-import { sb, rpc, fail, toast, usePoll, confetti, buzz } from './lib.js';
+import { sb, rpc, fail, toast, usePoll, confetti, buzz, ensureAuth, authRetry } from './lib.js';
 import { Capture, Chosen } from './recorder.js';
 
 // "Make it real" shortcuts. Plain links for now; swap in affiliate links here later.
@@ -36,6 +36,7 @@ async function compressImg(file, max = 1400, q = 0.82) {
 
 // Upload a photo (compressed) or a short video into the private proofs bucket.
 export async function uploadProof(coupleId, file) {
+  await ensureAuth();
   const isVideo = (file.type || '').startsWith('video/');
   const isAudio = (file.type || '').startsWith('audio/');
   let blob = file, ext = 'jpg', type = 'image/jpeg';
@@ -50,7 +51,7 @@ export async function uploadProof(coupleId, file) {
     blob = await compressImg(file);
   }
   const path = `${coupleId}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await sb.storage.from(PROOF_BUCKET).upload(path, blob, { contentType: type });
+  const { error } = await authRetry(() => sb.storage.from(PROOF_BUCKET).upload(path, blob, { contentType: type }));
   if (error) throw error;
   return { path, kind: isAudio ? 'audio' : isVideo ? 'video' : 'image' };
 }

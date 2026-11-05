@@ -1,5 +1,5 @@
 import { html, useState, useEffect, useRef } from 'https://esm.sh/htm@3.1.1/preact/standalone';
-import { sb, rpc, toast, fail, usePoll, Mark } from './lib.js';
+import { sb, rpc, toast, fail, usePoll, Mark, ensureAuth, authRetry } from './lib.js';
 import { DailyCard } from './daily.js';
 import { Capture } from './recorder.js';
 
@@ -35,7 +35,8 @@ export async function signed(paths) {
 export async function uploadPhoto(coupleId, file) {
   const blob = await compress(file);
   const path = `${coupleId}/${crypto.randomUUID()}.jpg`;
-  const { error } = await sb.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg' });
+  await ensureAuth();
+  const { error } = await authRetry(() => sb.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg' }));
   if (error) throw error;
   return path;
 }
@@ -47,7 +48,8 @@ export async function uploadMedia(coupleId, file) {
     const type = file.type.split(';')[0];
     const ext = /mp4|m4a|aac/.test(type) ? 'm4a' : type.includes('ogg') ? 'ogg' : type.includes('mpeg') ? 'mp3' : 'weba';
     const apath = `${coupleId}/${crypto.randomUUID()}.${ext}`;
-    const { error: aerr } = await sb.storage.from(BUCKET).upload(apath, new Blob([file], { type }), { contentType: type });
+    await ensureAuth();
+    const { error: aerr } = await authRetry(() => sb.storage.from(BUCKET).upload(apath, new Blob([file], { type }), { contentType: type }));
     if (aerr) throw aerr;
     return apath;
   }
@@ -55,7 +57,8 @@ export async function uploadMedia(coupleId, file) {
   if (file.size > 40 * 1024 * 1024) throw new Error('That video is too big. Keep it to about 20 seconds.');
   const ext = file.type.includes('quicktime') ? 'mov' : file.type.includes('webm') ? 'webm' : 'mp4';
   const path = `${coupleId}/${crypto.randomUUID()}.${ext}`;
-  const { error } = await sb.storage.from(BUCKET).upload(path, file, { contentType: file.type });
+  await ensureAuth();
+  const { error } = await authRetry(() => sb.storage.from(BUCKET).upload(path, file, { contentType: file.type }));
   if (error) throw error;
   return path;
 }

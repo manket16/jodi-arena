@@ -14,8 +14,27 @@ export const GAMES = {
 };
 export const gameVars = (k) => `--g:${GAMES[k].g};--g-soft:${GAMES[k].soft}`;
 
+// A login that has gone stale (phone slept, app was in the background) shows up as "JWT expired" or "not authorized".
+// Refresh the login once and retry; if it cannot be refreshed, log out so the person simply logs in again.
+const AUTH_ERR = /jwt|expired|not authori[sz]ed|unauthori[sz]ed|invalid token/i;
+const EXPIRED = 'Your login expired. Please log in again.';
+async function renew() {
+  try { const { data, error } = await sb.auth.refreshSession(); if (!error && data.session) return true; } catch (_) { /* fall through */ }
+  try { await sb.auth.signOut(); } catch (_) { /* ignore */ }
+  return false;
+}
+export async function ensureAuth() {
+  const { data } = await sb.auth.getSession(); // refreshes the token when it is close to expiring
+  if (!data.session && !(await renew())) throw new Error(EXPIRED);
+}
+export async function authRetry(fn) {
+  const first = await fn();
+  if (!first.error || !AUTH_ERR.test(first.error.message || '')) return first;
+  if (!(await renew())) return { data: null, error: new Error(EXPIRED) };
+  return fn();
+}
 export async function rpc(name, args) {
-  const { data, error } = await sb.rpc(name, args);
+  const { data, error } = await authRetry(() => sb.rpc(name, args));
   if (error) throw new Error(error.message);
   return data;
 }
