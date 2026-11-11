@@ -13,6 +13,7 @@ import { Capture, Chosen } from './recorder.js';
 import { Quiz, Listen } from './ld-ui.js';
 import { StageCard } from './stages.js';
 import { isNew } from './spice-engine.js';
+import { DnaCard, getDna } from './dna-skin.js';
 import { PreGame, CameraRoll, KaunBola, UnlockModal, loadProgress, getProgress, usedPrompts, checkUnlock } from './spice-ui.js';
 
 // ---------- tiny store so any screen can start a duel ----------
@@ -524,6 +525,7 @@ export function PlayScreen({ home, toStakes, toMe }) {
   const mineSpins = useSpins();
   const [editing, setEditing] = useState(false);
   const [board, setBoard] = useState(null);
+  const [dna, setDna] = useState(getDna());
   const partner = home.couple.partner_name;
   const guestLocked = home.couple.guest_locked;
   const free = ['jhooth', 'momo'];
@@ -539,6 +541,7 @@ export function PlayScreen({ home, toStakes, toMe }) {
         <div><h1 style="font-size:28px">Play 🎮</h1><p class="small muted">Both phones, same time. Just you two.</p></div>
         <span class=${'online-pill' + (online ? ' on' : '')}>${online ? `🟢 ${partner} is here` : `⚪ ${partner} away`}</span>
       </div>
+      <${DnaCard} uid=${0} mine=${home.profile.name} partner=${partner} dna=${dna} onSaved=${setDna} />
       <button class=${'spin-card' + (mineSpins ? ' done' : '')} onClick=${() => setEditing(true)}>
         <span class="spin-emo">🎡</span>
         <span class="grow"><b>${mineSpins ? 'Our spins are ready ✓' : 'Add your spins'}</b>

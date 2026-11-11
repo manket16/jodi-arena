@@ -6,6 +6,7 @@ import { ScenesScreen } from './scenes.js';
 import { NotesScreen } from './notes.js';
 import { CreateScreen } from './create.js';
 import { DuelLayer, PlayScreen, StakesScreen, SyncScreen } from './duel.js';
+import { loadDna, applySkin } from './dna-skin.js';
 import { connect, disconnect } from './live.js';
 import { META } from './duel-engine.js';
 import { StagesPanel } from './stages.js';
@@ -294,7 +295,7 @@ function App() {
     let tid;
     setToastFn((msg, err) => { setT({ msg, err }); clearTimeout(tid); tid = setTimeout(() => setT(null), 3500); });
     sb.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data } = sb.auth.onAuthStateChange((_e, s) => { setSession(s); if (!s) { setHome(null); setSub(null); disconnect(); try { if (uidRef.current) localStorage.removeItem('jb-home-' + uidRef.current); } catch (_) { /* ignore */ } uidRef.current = null; } });
+    const { data } = sb.auth.onAuthStateChange((_e, s) => { setSession(s); if (!s) { setHome(null); setSub(null); disconnect(); applySkin(null); try { localStorage.removeItem('jb-dna'); } catch (_) { /* ignore */ } try { if (uidRef.current) localStorage.removeItem('jb-home-' + uidRef.current); } catch (_) { /* ignore */ } uidRef.current = null; } });
     return () => data.subscription.unsubscribe();
   }, []);
 
@@ -313,6 +314,8 @@ function App() {
   const uid = session && session.user.id;
   const live = !!(home && home.couple && home.couple.complete && uid);
   const solo = !!(home && home.couple && !home.couple.complete);
+  const [, bump] = useState(0);
+  useEffect(() => { if (live) loadDna(uid).then(() => bump((n) => n + 1)); }, [live]);
   const [owe, setOwe] = useState(0);
   useEffect(() => {
     if (solo) return;
