@@ -4,7 +4,8 @@
 import { html, useState, useEffect, useRef } from 'https://esm.sh/htm@3.1.1/preact/standalone';
 import { rpc, toast, fail, confetti, buzz, blip, Mark } from './lib.js';
 import { send, onMessage, onPresence } from './live.js';
-import { META, SYNC_HOW, HIDDEN, create, act, tick, role, TIMES } from './duel-engine.js';
+import { META, SYNC_HOW, HIDDEN, MAIN, NO_SYNC, create, act, tick, role, TIMES } from './duel-engine.js';
+import { Xo, Sniper, Sketch, Vault, Tug, Wheel as SpinWheel } from './sg-ui.js';
 import { STAKES } from './duel-content.js';
 import { STAKES_BY_LEVEL } from './spice-content.js';
 import { Sheet } from './hub.js';
@@ -46,7 +47,7 @@ const stakeList = (mine) => mine || STAKES;
 const seenKey = (k) => `jodi_seen_${k}`;
 function loadAvoid() {
   const out = {};
-  for (const k of ['jhooth', 'draw', 'hotseat', 'slider', 'bolti', 'quiz', 'listen', 'scavenger']) { try { out[k] = JSON.parse(localStorage.getItem(seenKey(k)) || '[]'); } catch (_) { out[k] = []; } }
+  for (const k of ['jhooth', 'draw', 'hotseat', 'slider', 'bolti', 'quiz', 'listen', 'scavenger', 'sketch', 'who', 'dare']) { try { out[k] = JSON.parse(localStorage.getItem(seenKey(k)) || '[]'); } catch (_) { out[k] = []; } }
   return out;
 }
 function saveSeen(s) {
@@ -191,8 +192,11 @@ function Lobby({ d, uid, me, partner }) {
           <button class="link" onClick=${() => { send({ t: 'cancel', id: d.id }); setInviting(false); }}>Cancel</button>
         </div>` : html`
         ${declined && html`<p class="small center muted">${partner} said not now. Try again in a bit.</p>`}
-        <button class="btn game big-cta" onClick=${() => { setDeclined(false); setInviting(true); }}>Invite ${partner} to play</button>
-        <a class="btn ghost" style="text-decoration:none" href=${waHref} target="_blank" rel="noopener noreferrer" onClick=${() => { setDeclined(false); setInviting(true); }}>💬 Challenge on WhatsApp</a>`}
+        ${online ? html`
+          <button class="btn game big-cta" onClick=${() => { setDeclined(false); setInviting(true); }}>Invite ${partner} to play</button>
+          <a class="btn ghost" style="text-decoration:none" href=${waHref} target="_blank" rel="noopener noreferrer" onClick=${() => { setDeclined(false); setInviting(true); }}>💬 Challenge on WhatsApp</a>` : html`
+          <a class="btn game big-cta" style="text-decoration:none" href=${waHref} target="_blank" rel="noopener noreferrer" onClick=${() => { setDeclined(false); setInviting(true); }}>💬 Challenge ${partner} on WhatsApp</a>
+          <button class="btn ghost" onClick=${() => { setDeclined(false); setInviting(true); }}>Invite in the app</button>`}`}
     </div>`;
 }
 
@@ -209,7 +213,7 @@ function Room({ d, uid, home }) {
   const publish = (ns) => { sRef.current = ns; setS(ns); send({ t: 'state', id: d.id, s: ns, hnow: Date.now() }); };
   const begin = (first = Math.random() < 0.5 ? 0 : 1) => {
     saved.current = false;
-    publish(create(d.game, [uid, d.partnerId], { names: { [uid]: myName, [d.partnerId]: partnerName }, seed: (Math.random() * 2 ** 32) >>> 0, stake: d.stake, first, avoid: loadAvoid(), level: d.level, mode: d.mode, customs: sRef.current ? [] : d.customs, used: [...usedPrompts(), ...((sRef.current && sRef.current.newIds) || [])] }));
+    publish(create(d.game, [uid, d.partnerId], { names: { [uid]: myName, [d.partnerId]: partnerName }, seed: (Math.random() * 2 ** 32) >>> 0, stake: d.stake, first, avoid: loadAvoid(), dna: getDna(), level: d.level, mode: d.mode, customs: sRef.current ? [] : d.customs, used: [...usedPrompts(), ...((sRef.current && sRef.current.newIds) || [])] }));
   };
 
   useEffect(() => {
@@ -285,7 +289,7 @@ function Room({ d, uid, home }) {
         <div class="score-pill"><span class=${r.me === s.p[0] ? 'mine' : ''}>${name(s.p[0])} <b>${s.sc[s.p[0]]}</b></span><span class="vs">${g.emo}</span><span class=${r.me === s.p[1] ? 'mine' : ''}><b>${s.sc[s.p[1]]}</b> ${name(s.p[1])}</span></div>
       </div>
       ${s.stake && !s.over && html`<p class="stake-line">Loser has to: <b>${s.stake}</b></p>`}
-      ${s.game !== 'momo' && s.game !== 'quiz' && !s.over && s.ph !== 'intro' && s.ph !== 'go' && html`<p class="sync-line">💞 Jodi Sync <b>${s.sync}</b>${s.ph === 'reveal' && s.gain > 0 ? html` <span class="sync-gain" key=${s.rd + '-' + s.gain}>+${s.gain}</span>` : ''}</p>`}
+      ${!NO_SYNC.includes(s.game) && !s.over && s.ph !== 'intro' && s.ph !== 'go' && html`<p class="sync-line">💞 Jodi Sync <b>${s.sync}</b>${s.ph === 'reveal' && s.gain > 0 ? html` <span class="sync-gain" key=${s.rd + '-' + s.gain}>+${s.gain}</span>` : ''}</p>`}
       ${s.ph === 'intro' ? html`<${Intro} ...${P} />` : s.ph === 'go' ? html`<${Countdown} ...${P} />` : s.over ? html`<${Over} ...${P} />` : html`<${GAMES[s.game]} ...${P} />`}
     </div>`;
 }
@@ -363,7 +367,7 @@ function Over({ s, uid, name, partnerName, d, rematch, doAct, home }) {
       <h1>${tie ? 'It’s a tie!' : won ? 'You win!' : `${partnerName} wins!`}</h1>
       <p class="big-score">${s.sc[s.p[0]]} – ${s.sc[s.p[1]]}</p>
       ${s.game === 'draw' && html`<p class="small muted">Drawing time: ${name(s.p[0])} ${Math.round(s.time[s.p[0]] / 1000)}s · ${name(s.p[1])} ${Math.round(s.time[s.p[1]] / 1000)}s</p>`}
-      ${s.game !== 'momo' && s.game !== 'quiz' && html`<div class="sync-card"><span class="small">You two know each other</span><b>💞 +${s.sync} Sync points</b><span class="small muted">${s.sync > 0 ? 'Added to your jodi total. See the Sync tab.' : 'Read each other better next round!'}</span></div>`}
+      ${!NO_SYNC.includes(s.game) && html`<div class="sync-card"><span class="small">You two know each other</span><b>💞 +${s.sync} Sync points</b><span class="small muted">${s.sync > 0 ? 'Added to your jodi total. See the Sync tab.' : 'Read each other better next round!'}</span></div>`}
       ${!tie && html`<${StakeSpin} s=${s} uid=${uid} doAct=${doAct} d=${d} partnerName=${partnerName} />`}
       ${!tie && html`<a class="btn ghost" style="text-decoration:none" target="_blank" rel="noopener noreferrer" href=${receiptUrl(s, uid, home.profile.name, partnerName)}>🧾 Send Shart receipt on WhatsApp</a>`}
       <button class="btn game big-cta" onClick=${rematch}>Rematch 🔁</button>
@@ -563,7 +567,7 @@ function Bolti({ s, r, doAct, now, name }) {
   return null;
 }
 
-const GAMES = { jhooth: Jhooth, draw: Draw, momo: Momo, hotseat: HotSeat, slider: Slider, bolti: Bolti, camera: CameraRoll, kaunbola: KaunBola, quiz: Quiz, listen: Listen, scavenger: CameraRoll };
+const GAMES = { jhooth: Jhooth, draw: Draw, momo: Momo, hotseat: HotSeat, slider: Slider, bolti: Bolti, camera: CameraRoll, kaunbola: KaunBola, quiz: Quiz, listen: Listen, scavenger: CameraRoll, xo: Xo, sniper: Sniper, sketch: Sketch, vault: Vault, tug: Tug, wheel: SpinWheel };
 
 // ---------- the Play tab ----------
 export function PlayScreen({ home, toStakes, toMe }) {
@@ -574,13 +578,18 @@ export function PlayScreen({ home, toStakes, toMe }) {
   const [dna, setDna] = useState(getDna());
   const partner = home.couple.partner_name;
   const guestLocked = home.couple.guest_locked;
-  const free = ['jhooth', 'momo'];
+  const free = ['jhooth', 'momo', 'xo', 'tug'];
   useEffect(() => { rpc('duel_board').then(setBoard).catch(() => {}); }, []);
   const go = (k) => {
     if (guestLocked && !free.includes(k)) { toast(home.couple.me_guest ? 'Save your account to unlock this game' : `${partner} is a guest. Ask them to save their account.`); if (home.couple.me_guest) toMe(); return; }
     startDuel(k);
   };
   const owed = board ? board.recent.filter((x) => x.stake && x.loser && !x.paid_at) : [];
+  const card = (k, g) => html`
+    <button class=${'duel-card' + (guestLocked && !free.includes(k) ? ' locked' : '')} style=${`--g:${g.color};--g-soft:${g.soft}`} onClick=${() => go(k)}>
+      ${guestLocked && !free.includes(k) && html`<span class="dlock">🔒</span>`}
+      <span class="dc-emo">${g.emo}</span><b>${g.name}</b><span class="dc-sub">${g.sub}</span>
+    </button>`;
   return html`
     <div class="stack screen play-screen">
       <div class="row between">
@@ -596,12 +605,11 @@ export function PlayScreen({ home, toStakes, toMe }) {
       </button>
       ${board && html`<button class="tally" onClick=${toStakes}><span>You <b>${board.my_wins}</b></span><span class="small muted">${owed.length ? `${owed.length} stake${owed.length > 1 ? 's' : ''} pending` : 'All stakes paid'}</span><span><b>${board.partner_wins}</b> ${partner}</span></button>`}
       <div class="duel-grid">
-        ${Object.entries(META).filter(([k]) => !HIDDEN.includes(k)).map(([k, g]) => html`
-          <button class=${'duel-card' + (guestLocked && !free.includes(k) ? ' locked' : '')} style=${`--g:${g.color};--g-soft:${g.soft}`} onClick=${() => go(k)}>
-            ${guestLocked && !free.includes(k) && html`<span class="dlock">🔒</span>`}
-            <span class="dc-emo">${g.emo}</span><b>${g.name}</b><span class="dc-sub">${g.sub}</span>
-          </button>`)}
+        ${MAIN.map((k) => card(k, META[k]))}
       </div>
+      <details class="more-games"><summary>More games</summary>
+        <div class="duel-grid more">${Object.entries(META).filter(([k]) => !HIDDEN.includes(k) && !MAIN.includes(k)).map(([k, g]) => card(k, g))}</div>
+      </details>
       ${editing && html`<${SpinEditor} onClose=${() => setEditing(false)} partner=${partner} />`}
     </div>`;
 }

@@ -10,11 +10,11 @@ export const VIBE = [['filmy', '🎭 Full filmy'], ['roast', '😜 Roasting each
 
 // game id -> name, per shared obsession
 const NAMES = {
-  food:    { momo: 'Steal the Golgappa', hotseat: 'Chai Tapri Hot Seat', slider: 'Tapri Hisaab', quiz: 'Street Food Quiz', scavenger: 'Chaat Photo Hunt', listen: 'Chai-Time Listen' },
-  movies:  { momo: 'Steal the Maggi', hotseat: 'Late-Night Hot Seat', slider: 'Filmy Hisaab', quiz: 'Bollywood Quick Quiz', scavenger: 'Filmy Photo Hunt', listen: 'Movie-Night Listen' },
-  hills:   { momo: 'Steal the Hill Maggi', hotseat: 'Hill-Station Hot Seat', slider: 'Pahadi Hisaab', quiz: 'Trip Quick Quiz', scavenger: 'Pahadi Photo Hunt', listen: 'Road-Trip Listen' },
-  cricket: { momo: 'IPL Snack Snatch', hotseat: 'Super Over Hot Seat', slider: 'Strike Rate Hisaab', quiz: 'IPL Quick Quiz', scavenger: 'Stadium Photo Hunt', listen: 'Match-Day Listen' },
-  gym:     { momo: 'Steal the Protein Shake', hotseat: 'Gym Bro Hot Seat', slider: 'Rep Count Hisaab', quiz: 'Fitness Quick Quiz', scavenger: 'Sweaty Photo Hunt', listen: 'Workout Playlist Listen' },
+  food:    { xo: 'Chai vs Samosa', sniper: 'Momo Sniper', sketch: 'Ganda Chaat Sketch', vault: 'Masala Vault', tug: 'Paneer Tikka Tug', wheel: 'Tapri Wheel', momo: 'Steal the Golgappa', hotseat: 'Chai Tapri Hot Seat', slider: 'Tapri Hisaab', quiz: 'Street Food Quiz', scavenger: 'Chaat Photo Hunt', listen: 'Chai-Time Listen' },
+  movies:  { xo: 'Popcorn vs Clapper', sniper: 'Popcorn Sniper', sketch: 'Filmy Sketch', vault: 'Box Office Vault', tug: 'Remote Tug', wheel: 'Filmy Wheel', momo: 'Steal the Maggi', hotseat: 'Late-Night Hot Seat', slider: 'Filmy Hisaab', quiz: 'Bollywood Quick Quiz', scavenger: 'Filmy Photo Hunt', listen: 'Movie-Night Listen' },
+  hills:   { xo: 'Pahad vs Maggi', sniper: 'Maggi Sniper', sketch: 'Trip Sketch', vault: 'Snow Vault', tug: 'Blanket Tug', wheel: 'Road Trip Wheel', momo: 'Steal the Hill Maggi', hotseat: 'Hill-Station Hot Seat', slider: 'Pahadi Hisaab', quiz: 'Trip Quick Quiz', scavenger: 'Pahadi Photo Hunt', listen: 'Road-Trip Listen' },
+  cricket: { xo: 'Bat vs Ball', sniper: 'Trophy Sniper', sketch: 'Stadium Sketch', vault: 'Dressing Room Vault', tug: 'Trophy Tug', wheel: 'Super Over Wheel', momo: 'IPL Snack Snatch', hotseat: 'Super Over Hot Seat', slider: 'Strike Rate Hisaab', quiz: 'IPL Quick Quiz', scavenger: 'Stadium Photo Hunt', listen: 'Match-Day Listen' },
+  gym:     { xo: 'Dumbbell vs Shake', sniper: 'Protein Sniper', sketch: 'Gym Sketch', vault: 'Locker Vault', tug: 'Shake Tug', wheel: 'Gym Bro Wheel', momo: 'Steal the Protein Shake', hotseat: 'Gym Bro Hot Seat', slider: 'Rep Count Hisaab', quiz: 'Fitness Quick Quiz', scavenger: 'Sweaty Photo Hunt', listen: 'Workout Playlist Listen' },
 };
 const lab = (list, k) => (list.find((x) => x[0] === k) || [])[1] || '';
 

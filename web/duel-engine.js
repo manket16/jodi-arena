@@ -4,13 +4,30 @@
 import { JHOOTH, DRAW, HOTSEAT, SLIDER, BOLTI, MOMO_GOOD, MOMO_TRAP } from './duel-content.js';
 import { isNew, initNew, startNew, actNew, tickNew } from './spice-engine.js';
 import { isLD, initLD, startLD, actLD, tickLD } from './ld-engine.js';
+import { isSG, initSG, startSG, actSG, tickSG } from './sg-engine.js';
 
 // games that use the photo-round rules in spice-engine.js (Camera Roll Roulette, Kaun Bola? and the Photo Hunt)
 const viaSpice = (g) => isNew(g) || g === 'scavenger';
 // games hidden from the Play screen because they suit couples in the same room. Old results still show.
 export const HIDDEN = ['jhooth', 'draw', 'bolti', 'camera', 'kaunbola'];
+// the six main games shown first on the Play screen; the rest sit under "More games"
+export const MAIN = ['xo', 'sniper', 'sketch', 'vault', 'tug', 'wheel'];
+// games that give no Sync points (hide the Sync counter)
+export const NO_SYNC = ['momo', 'quiz', 'xo', 'sniper', 'sketch', 'vault', 'tug'];
 
 export const META = {
+  xo: { name: 'Cross-Zero', emo: '❌', color: '#E11D48', soft: '#FFE4E6', sub: 'Tic-tac-toe, but only 3 pieces each.',
+    how: ['Take turns. 5 seconds a move.', 'Only 3 pieces each. Your oldest vanishes.', 'Line of 3 wins. First to 2 rounds.'] },
+  sniper: { name: 'Grid Sniper', emo: '🎯', color: '#0E7490', soft: '#CFFAFE', sub: 'Hide 2 treats + 1 trap. Find theirs first.',
+    how: ['Hide 2 treats and 1 trap.', 'Take turns tapping their grid.', 'Treat: +1 and go again. Trap: skip a turn.', 'Find both treats to win.'] },
+  sketch: { name: 'Ganda Sketch', emo: '🖍️', color: '#7C3AED', soft: '#EDE9FE', sub: 'Draw it in 20 seconds. They spell it.',
+    how: ['One draws. 20 seconds.', 'Other taps letters to spell it.', 'Guessed: drawer +1. Fast guess: guesser +1.', '4 sketches, 2 each.'] },
+  vault: { name: 'Emoji Vault', emo: '🔐', color: '#B45309', soft: '#FEF3C7', sub: 'Lock 3 emojis. Can they crack it?',
+    how: ['One locks a 3-emoji code.', 'Other gets 5 tries.', '🟩 right spot · 🟨 wrong spot · ⬜ not in it', 'Swap once. Fewer tries = more points.'] },
+  tug: { name: 'Tug-of-War', emo: '🪢', color: '#16A34A', soft: '#DCFCE7', sub: 'Tap on green. Freeze on red!',
+    how: ['🟢 Green: tap tap tap!', '🔴 Red: freeze! A tap slips you back 3.', 'Pull the prize to your side.'] },
+  wheel: { name: 'Mystery Wheel', emo: '🎡', color: '#DB2777', soft: '#FCE7F3', sub: '5 spins. Coin, tap, dare, who is more?',
+    how: ['The wheel spins on both phones.', '🪙 Coin · 👆 Fast tap · 🤔 Who is more · 🎭 Dare', '5 spins. Most points wins.'] },
   jhooth: { name: 'Jhooth Pakdo', emo: '🕵️', color: '#7C3AED', soft: '#EDE9FE', sub: 'Tell a truth or a lie. Can your partner read your face?',
     how: ['One of you gets a question and secretly taps Truth or Bluff.', 'Answer it out loud. Your partner has 15 seconds to stare you down.', 'They tap Sach or Jhooth. Fool them to score. First to 3 wins.'] },
   draw: { name: 'Draw It Badly', emo: '✏️', color: '#0891B2', soft: '#CFFAFE', sub: '15 seconds, one finger. Can they guess your doodle?',
@@ -37,6 +54,8 @@ export const META = {
 
 // How each game earns Sync points: points for a partner who reads you right. Shown in the lobby.
 export const SYNC_HOW = {
+  xo: 'Just a battle, no Sync points', sniper: 'Just a battle, no Sync points', sketch: 'Just a battle, no Sync points',
+  vault: 'Just a battle, no Sync points', tug: 'Just a battle, no Sync points', wheel: 'You both pick the same person on a Who card: +10',
   jhooth: 'Your partner calls your truth or bluff correctly: +10',
   draw: 'Your partner guesses your drawing: +10, +5 if within 8 seconds',
   momo: 'This one is just for fun, no Sync points',
@@ -88,12 +107,14 @@ export function create(game, players, opts = {}) {
   if (game === 'bolti') s.turn = 0;
   if (viaSpice(game)) initNew(s, opts);
   if (isLD(game)) initLD(s);
+  if (isSG(game)) initSG(s, opts);
   return s;
 }
 
 function startRound(s, now) {
   if (viaSpice(s.game)) return startNew(s, now);
   if (isLD(s.game)) return startLD(s, now);
+  if (isSG(s.game)) return startSG(s, now);
   s.rd += 1; s.gain = 0;
   const A = s.p[s.a];
   if (s.game === 'jhooth') { s.q = JHOOTH[pick(s, 'jhooth', JHOOTH.length, s.avoid.jhooth)]; s.ph = 'choose'; s.secret = null; s.verdict = null; s.dl = null; }
@@ -149,6 +170,7 @@ export function act(state, by, a, now) {
 
   if (viaSpice(s.game)) return actNew(s, by, a, now, me) || state;
   if (isLD(s.game)) return actLD(s, by, a, now, me) || state;
+  if (isSG(s.game)) return actSG(s, by, a, now, me) || state;
 
   switch (s.game) {
     case 'jhooth':
@@ -251,6 +273,7 @@ export function tick(state, now) {
 
   if (viaSpice(s0.game)) return tickNew(s0, now);
   if (isLD(s0.game)) return tickLD(s0, now);
+  if (isSG(s0.game)) return tickSG(s0, now);
   if (s0.game === 'momo' && s0.ph === 'play') return tickMomo(s0, now);
   if (!s0.dl || now < s0.dl) return s0;
   const s = clone(s0);

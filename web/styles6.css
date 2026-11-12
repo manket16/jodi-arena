@@ -132,3 +132,44 @@
 .duel-grid{grid-template-rows:repeat(3,minmax(128px,1fr))}
 .nav button b{position:relative}.nav-badge{position:absolute;top:-4px;right:-10px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:99px;background:var(--rani);color:#fff;font:700 11px/18px var(--display);font-style:normal;text-align:center;border:2px solid #fff;line-height:14px}
 .car-aud{flex:0 0 86%;align-self:center;scroll-snap-align:center}
+/* Shart games */
+.sg-say{text-align:center;display:flex;flex-direction:column;gap:2px}
+.sg-say b{font-family:var(--display);font-size:clamp(22px,3.4dvh,28px);line-height:1.15}
+.sg-say span{font-size:14px;color:var(--muted)}
+.xo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(100%,340px);aspect-ratio:1;margin:0 auto}
+.xo-cell{border:0;border-radius:18px;background:var(--card);box-shadow:var(--shadow);font-size:clamp(34px,10vw,52px);display:grid;place-items:center;cursor:pointer;font-family:inherit}
+.xo-cell:disabled{cursor:default;color:inherit}
+.xo-cell.old{opacity:.4;animation:pulse 1.2s ease-in-out infinite}
+.xo-cell.win{background:#DCFCE7}
+.sn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:min(100%,320px);margin:0 auto}
+.sn-grid.mini{width:min(60%,190px);gap:4px}
+.sn-cell{aspect-ratio:1;border:0;border-radius:12px;background:var(--card);box-shadow:var(--shadow);font-size:26px;display:grid;place-items:center;font-family:inherit;color:inherit}
+.sn-grid.mini .sn-cell{font-size:16px;border-radius:8px}
+.sn-cell.hit.treat{background:#DCFCE7}.sn-cell.hit.trap{background:#FEE2E2}.sn-cell.hit.miss{background:#F1F5F9;color:var(--muted)}
+.sk-slots{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.sk-word{display:flex;gap:4px}
+.sk-word i{font-style:normal;width:26px;height:34px;border-bottom:3px solid var(--ink);display:grid;place-items:center;font-weight:800;font-size:20px}
+.sk-tiles{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.sk-tile{width:42px;height:46px;border:0;border-radius:12px;background:var(--g-soft,#FFE1D6);font:800 20px var(--display);color:var(--ink);cursor:pointer}
+.sk-tile.used{opacity:.25}.sk-tile.back{background:var(--card);box-shadow:var(--shadow)}
+.v-slots{display:flex;gap:10px;justify-content:center}
+.v-slot{width:62px;height:62px;border-radius:16px;border:2px dashed var(--line);background:var(--card);font-size:34px;display:grid;place-items:center;font-family:inherit}
+.v-keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(100%,300px);margin:0 auto}
+.v-key{height:60px;border:0;border-radius:16px;background:var(--card);box-shadow:var(--shadow);font-size:32px;cursor:pointer}
+.v-key.used{opacity:.3}
+.v-tries{display:flex;flex-direction:column;gap:6px;align-items:center}
+.v-try{display:flex;gap:6px}
+.fb{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:24px}
+.fb.g{background:#86EFAC}.fb.y{background:#FDE68A}.fb.x{background:#E2E8F0}
+.tug-light{text-align:center;font:800 30px var(--display);padding:10px;border-radius:18px;color:#fff}
+.tug-light.go{background:#16A34A}.tug-light.stop{background:#DC2626}
+.tug-track{display:flex;align-items:center;gap:8px}
+.tug-end{font-weight:800;font-size:13px;width:52px;text-align:center}
+.tug-rope{position:relative;flex:1;height:10px;border-radius:5px;background:repeating-linear-gradient(90deg,#B45309 0 10px,#D97706 10px 20px)}
+.tug-rope:before{content:'';position:absolute;left:50%;top:-14px;bottom:-14px;width:2px;background:var(--muted)}
+.tug-knot{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:36px;transition:left .15s}
+.tug-pad,.tap-pad{width:100%;min-height:32dvh;border:0;border-radius:28px;font:800 40px var(--display);color:#fff;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.tug-pad.go,.tap-pad.go{background:#16A34A}.tug-pad.stop{background:#DC2626}.tap-pad.wait{background:#64748B}
+.tug-pad:active,.tap-pad:active{transform:scale(.98)}
+.more-games summary{cursor:pointer;font-weight:700;padding:8px 2px;color:var(--muted)}
+.duel-grid.more{flex:none;grid-template-rows:none;grid-auto-rows:minmax(120px,auto);margin-top:6px}
