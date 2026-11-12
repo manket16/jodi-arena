@@ -320,7 +320,7 @@ function StakeSpin({ s, uid, doAct, d, partnerName }) {
     </section>`;
 }
 
-function Over({ s, uid, name, partnerName, d, rematch, doAct }) {
+function Over({ s, uid, name, partnerName, d, rematch, doAct, home }) {
   const won = s.win === uid, tie = !s.win;
   return html`
     <div class="stack-lg center">
@@ -330,9 +330,20 @@ function Over({ s, uid, name, partnerName, d, rematch, doAct }) {
       ${s.game === 'draw' && html`<p class="small muted">Drawing time: ${name(s.p[0])} ${Math.round(s.time[s.p[0]] / 1000)}s · ${name(s.p[1])} ${Math.round(s.time[s.p[1]] / 1000)}s</p>`}
       ${s.game !== 'momo' && s.game !== 'quiz' && html`<div class="sync-card"><span class="small">You two know each other</span><b>💞 +${s.sync} Sync points</b><span class="small muted">${s.sync > 0 ? 'Added to your jodi total. See the Sync tab.' : 'Read each other better next round!'}</span></div>`}
       ${!tie && html`<${StakeSpin} s=${s} uid=${uid} doAct=${doAct} d=${d} partnerName=${partnerName} />`}
+      ${!tie && html`<a class="btn ghost" style="text-decoration:none" target="_blank" rel="noopener noreferrer" href=${receiptUrl(s, uid, home.profile.name, partnerName)}>🧾 Send Shart receipt on WhatsApp</a>`}
       <button class="btn game big-cta" onClick=${rematch}>Rematch 🔁</button>
       <button class="btn ghost" onClick=${() => { send({ t: 'leave', id: d.id }); setDuel(null); }}>Back to games</button>
     </div>`;
+}
+
+// A shareable "Shart receipt": who beat whom, the score, and what the loser owes.
+function receiptUrl(s, uid, myName, partnerName) {
+  const won = s.win === uid;
+  const winner = won ? myName : partnerName, loser = won ? partnerName : myName;
+  const g = META[s.game] || { name: 'a game', emo: '🎮' };
+  const stake = s.spin && s.spin.text;
+  const lines = ['🧾 SHART RECEIPT', `${g.emo} ${g.name}`, `🏆 ${winner} beat ${loser}  ${s.sc[s.p[0]]}–${s.sc[s.p[1]]}`, stake ? `💸 ${loser} owes: ${stake}` : `💸 ${loser} owes a stake. Spin the wheel!`, '', 'Settle it on Jugalbandi 👉 ' + location.origin];
+  return 'https://wa.me/?text=' + encodeURIComponent(lines.join('\n'));
 }
 
 // ---------- 1. Jhooth Pakdo ----------
