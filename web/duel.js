@@ -596,7 +596,6 @@ export function PlayScreen({ home, toStakes, toMe }) {
         <div><h1 style="font-size:28px">Play 🎮</h1><p class="small muted">Both phones, same time. Just you two.</p></div>
         <span class=${'online-pill' + (online ? ' on' : '')}>${online ? `🟢 ${partner} is here` : `⚪ ${partner} away`}</span>
       </div>
-      <${DnaCard} uid=${0} mine=${home.profile.name} partner=${partner} dna=${dna} onSaved=${setDna} />
       <button class=${'spin-card' + (mineSpins ? ' done' : '')} onClick=${() => setEditing(true)}>
         <span class="spin-emo">🎡</span>
         <span class="grow"><b>${mineSpins ? 'Our spins are ready ✓' : 'Add your spins'}</b>
