@@ -55,16 +55,42 @@ function saveSeen(s) {
   }
 }
 
+// the match id from a WhatsApp challenge link, remembered for 10 minutes so a login in between does not lose it
+function readJoin() {
+  try {
+    const q = new URLSearchParams(location.search).get('join');
+    if (q && /^[0-9a-f-]{36}$/i.test(q)) {
+      sessionStorage.setItem('jb-join', JSON.stringify({ id: q, at: Date.now() }));
+      history.replaceState(null, '', location.pathname);
+      return q;
+    }
+    const v = JSON.parse(sessionStorage.getItem('jb-join') || 'null');
+    if (v && Date.now() - v.at < 600000) return v.id;
+  } catch (_) { /* storage can be blocked */ }
+  return null;
+}
+const clearJoin = () => { try { sessionStorage.removeItem('jb-join'); } catch (_) { /* ignore */ } };
+
 // ---------- the layer that sits over the app ----------
 export function DuelLayer({ home, uid }) {
   const d = useDuel();
   const [invite, setInvite] = useState(null);
   const me = home.profile.name, partner = home.couple.partner_name;
+  // A challenge link (?join=<match id>) from WhatsApp: join that match the moment the sender's invite arrives.
+  const joinId = useRef(readJoin());
+  const [joining, setJoining] = useState(!!joinId.current);
   useEffect(() => { rpc('get_spins').then(setSpins).catch(() => {}); loadProgress(); }, [home.couple.id]);
   useEffect(() => onMessage((m) => {
+    if (m.t === 'invite' && joinId.current && m.id === joinId.current && !duel) {
+      joinId.current = null; setJoining(false); clearJoin(); buzz(30);
+      send({ t: 'accept', id: m.id, by: uid });
+      setDuel({ id: m.id, game: m.game, host: false, step: 'room', stake: m.stake, partnerId: m.from, level: m.level, mode: m.mode });
+      return;
+    }
     if (m.t === 'invite' && (!duel || (duel.step === 'lobby' && duel.host))) setInvite(m);
     if (m.t === 'cancel') setInvite((cur) => (cur && cur.id === m.id ? null : cur));
   }), []);
+  useEffect(() => { if (!joining) return; const t = setTimeout(() => { setJoining(false); joinId.current = null; clearJoin(); }, 180000); return () => clearTimeout(t); }, [joining]);
   // auto-hide stale invites
   useEffect(() => { if (!invite) return; const t = setTimeout(() => setInvite(null), 9000); return () => clearTimeout(t); }, [invite && invite.at]);
 
@@ -76,6 +102,12 @@ export function DuelLayer({ home, uid }) {
   const decline = () => { send({ t: 'decline', id: invite.id }); setInvite(null); };
 
   return html`
+    ${joining && !invite && !d && html`
+      <div class="invite-pop" role="status">
+        <span class="inv-emo">⏳</span>
+        <div class="grow"><b>Joining ${partner}’s game…</b><span class="small">Keep this open. ${partner} needs the app open too.</span></div>
+        <div class="inv-btns"><button class="link" onClick=${() => { setJoining(false); joinId.current = null; clearJoin(); }}>Cancel</button></div>
+      </div>`}
     ${invite && html`
       <div class="invite-pop" role="dialog" aria-label="Game invite">
         <span class="inv-emo">${META[invite.game].emo}</span>
@@ -140,7 +172,9 @@ function Lobby({ d, uid, me, partner }) {
     return () => { clearInterval(t); off(); };
   }, [inviting]);
   const close = () => { if (inviting) send({ t: 'cancel', id: d.id }); setDuel(null); };
-  const link = `${location.origin}/?play=1`;
+  const link = `${location.origin}/?join=${d.id}`;
+  const waText = `${me} challenges you 🎮 ${g.name}${stake ? `\n💸 Loser: ${stake}` : ''}\nTap to play now 👉 ${link}`;
+  const waHref = `https://wa.me/?text=${encodeURIComponent(waText)}`;
 
   return html`
     <div class="stack-lg duel-lobby" style=${`--g:${g.color};--g-soft:${g.soft}`}>
@@ -152,12 +186,13 @@ function Lobby({ d, uid, me, partner }) {
       ${inviting ? html`
         <div class="panel stack center">
           <p class="pulse"><b>Waiting for ${partner} to join…</b></p>
-          ${!online && html`<p class="small muted">${partner} needs to open Jugalbandi on their phone.</p>
-            <a class="btn" style="text-decoration:none" href=${`https://wa.me/?text=${encodeURIComponent(`${me} wants to play ${g.name} with you on Jugalbandi 🎮 Open it now: ${link}`)}`} target="_blank" rel="noopener">Call them on WhatsApp</a>`}
+          ${!online && html`<p class="small muted">${partner} needs to open Jugalbandi on their phone.</p>`}
+          <a class="btn" style="text-decoration:none" href=${waHref} target="_blank" rel="noopener noreferrer">💬 Send challenge on WhatsApp</a>
           <button class="link" onClick=${() => { send({ t: 'cancel', id: d.id }); setInviting(false); }}>Cancel</button>
         </div>` : html`
         ${declined && html`<p class="small center muted">${partner} said not now. Try again in a bit.</p>`}
-        <button class="btn game big-cta" onClick=${() => { setDeclined(false); setInviting(true); }}>Invite ${partner} to play</button>`}
+        <button class="btn game big-cta" onClick=${() => { setDeclined(false); setInviting(true); }}>Invite ${partner} to play</button>
+        <a class="btn ghost" style="text-decoration:none" href=${waHref} target="_blank" rel="noopener noreferrer" onClick=${() => { setDeclined(false); setInviting(true); }}>💬 Challenge on WhatsApp</a>`}
     </div>`;
 }
 
